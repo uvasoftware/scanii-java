@@ -1,0 +1,11 @@
+A pure Java interface to Scanii, a web based virus scanning engine (http://scanii.com) 
+
+Requirements:
+	1. Maven
+
+Using it:
+	1. Go to scanii.com and sign up for an API key 
+	2. Once armed with your API key and secret, you can run by replacing KEY and SECRET with the proper
+	information 
+	3. Checkout the ScaniiClient class and unit test for example
+
