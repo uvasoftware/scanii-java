@@ -20,21 +20,7 @@ Compiling:
     [INFO]    task-segment: [install]
     [INFO] ------------------------------------------------------------------------
     [INFO] [resources:resources]
-    [WARNING] Using platform encoding (MacRoman actually) to copy filtered resources, i.e. build is platform dependent!
-    [INFO] skip non existing resourceDirectory /Users/rafael/dev/uvasoftware/scanii-java/src/main/resources
-    [INFO] [compiler:compile]
-    [INFO] Nothing to compile - all classes are up to date
-    [INFO] [resources:testResources]
-    [WARNING] Using platform encoding (MacRoman actually) to copy filtered resources, i.e. build is platform dependent!
-    [INFO] skip non existing resourceDirectory /Users/rafael/dev/uvasoftware/scanii-java/src/test/resources
-    [INFO] [compiler:testCompile]
-    [INFO] Nothing to compile - all classes are up to date
-    [INFO] [surefire:test]
-    [INFO] Tests are skipped.
-    [INFO] [jar:jar]
-    [INFO] [install:install]
-    [INFO] Installing /Users/rafael/dev/uvasoftware/scanii-java/target/scanii-java-1.0-SNAPSHOT.jar to /Users/rafael/.m2/repository/groupId/scanii-java/1.0-SNAPSHOT/scanii-java-1.0-SNAPSHOT.jar
-    [INFO] ------------------------------------------------------------------------
+		...		
     [INFO] BUILD SUCCESSFUL
     [INFO] ------------------------------------------------------------------------
     [INFO] Total time: 1 second
