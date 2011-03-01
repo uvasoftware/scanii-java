@@ -9,3 +9,35 @@ Using it:
 	information 
 	3. Checkout the ScaniiClient class and unit test for example
 
+
+Compiling:
+    You can compile scanii-java.jar by running:
+
+    $ mvn install -DskipTests
+    [INFO] Scanning for projects...
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Building Unnamed - groupId:scanii-java:jar:1.0-SNAPSHOT
+    [INFO]    task-segment: [install]
+    [INFO] ------------------------------------------------------------------------
+    [INFO] [resources:resources]
+    [WARNING] Using platform encoding (MacRoman actually) to copy filtered resources, i.e. build is platform dependent!
+    [INFO] skip non existing resourceDirectory /Users/rafael/dev/uvasoftware/scanii-java/src/main/resources
+    [INFO] [compiler:compile]
+    [INFO] Nothing to compile - all classes are up to date
+    [INFO] [resources:testResources]
+    [WARNING] Using platform encoding (MacRoman actually) to copy filtered resources, i.e. build is platform dependent!
+    [INFO] skip non existing resourceDirectory /Users/rafael/dev/uvasoftware/scanii-java/src/test/resources
+    [INFO] [compiler:testCompile]
+    [INFO] Nothing to compile - all classes are up to date
+    [INFO] [surefire:test]
+    [INFO] Tests are skipped.
+    [INFO] [jar:jar]
+    [INFO] [install:install]
+    [INFO] Installing /Users/rafael/dev/uvasoftware/scanii-java/target/scanii-java-1.0-SNAPSHOT.jar to /Users/rafael/.m2/repository/groupId/scanii-java/1.0-SNAPSHOT/scanii-java-1.0-SNAPSHOT.jar
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESSFUL
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time: 1 second
+    [INFO] Finished at: Tue Mar 01 00:46:18 MST 2011
+    [INFO] Final Memory: 15M/81M
+    [INFO] ------------------------------------------------------------------------    
