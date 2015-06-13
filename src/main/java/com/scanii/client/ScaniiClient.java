@@ -2,6 +2,7 @@ package com.scanii.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.kevinsawicki.http.HttpRequest;
+import com.scanii.client.misc.Endpoints;
 import com.scanii.client.misc.HttpHeaders;
 import com.scanii.client.misc.JSON;
 
@@ -12,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Thred safe client to the Scanii content processing service
+ * Thread safe client to the Scanii content processing service
  */
 public class ScaniiClient {
 
@@ -41,8 +42,7 @@ public class ScaniiClient {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
       }
 
-      ScaniiResult result = processResponse(r);
-      return result;
+      return processResponse(r);
 
     } catch (Exception ex) {
       throw new ScaniiException(ex);
@@ -61,9 +61,7 @@ public class ScaniiClient {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
       }
 
-      ScaniiResult result = processResponse(r);
-
-      return result;
+      return processResponse(r);
 
     } catch (Exception ex) {
       throw new ScaniiException(ex);
@@ -81,8 +79,7 @@ public class ScaniiClient {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
       }
 
-      ScaniiResult result = processResponse(r);
-      return result;
+      return processResponse(r);
 
     } catch (Exception ex) {
       throw new ScaniiException(ex);
@@ -107,8 +104,7 @@ public class ScaniiClient {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
       }
 
-      ScaniiResult result = processResponse(r);
-      return result;
+      return processResponse(r);
 
     } catch (Exception ex) {
       throw new ScaniiException(ex);

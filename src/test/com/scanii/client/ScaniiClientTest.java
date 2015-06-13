@@ -137,4 +137,36 @@ public class ScaniiClientTest {
     assertNotNull(actualResult.getFindings());
     assertEquals("av.eicar-test-signature", actualResult.getFindings().get(0));
   }
+
+  @Test
+  public void testFetchWithCallback() throws InterruptedException {
+    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
+
+    ScaniiResult result;
+    // simple processing clean
+    result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com");
+    assertNotNull(result.getFileId());
+    assertNull(result.getChecksum());
+    assertNotNull(result.getResourceLocation());
+    assertNotNull(result.getRawResponse());
+    assertNotNull(result.getRequestId());
+    assertNull(result.getContentType());
+    assertNotNull(result.getHostId());
+    assertNull(result.getFindings());
+    System.out.println(result);
+
+    Thread.sleep(5000);
+
+    // fetching result:
+    ScaniiResult actualResult = client.result(result.getFileId());
+    assertNotNull(actualResult.getFileId());
+    assertNotNull(actualResult.getChecksum());
+    assertNull(actualResult.getResourceLocation());
+    assertNotNull(actualResult.getRawResponse());
+    assertNotNull(actualResult.getRequestId());
+    assertNotNull(actualResult.getContentType());
+    assertNotNull(actualResult.getHostId());
+    assertNotNull(actualResult.getFindings());
+    assertEquals("av.eicar-test-signature", actualResult.getFindings().get(0));
+  }
 }

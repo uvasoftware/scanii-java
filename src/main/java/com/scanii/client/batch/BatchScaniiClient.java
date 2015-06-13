@@ -9,6 +9,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+/**
+ * High performance client wrapper for handling large number of files
+ */
 public class BatchScaniiClient {
   private static final int MAX_CONCURRENT_REQUESTS = 10;
   private final Semaphore pending;
@@ -27,6 +30,11 @@ public class BatchScaniiClient {
     workers = Executors.newWorkStealingPool(maxConcurrentRequests);
   }
 
+  /**
+   * Submits a file for batch processing
+   * @param content Path to the content to be processed
+   * @param handler Method to be called once processing is completed and a result is at hand
+   */
   public void submit(final Path content, final ScaniiResultHandler handler) {
     try {
       pending.acquire();

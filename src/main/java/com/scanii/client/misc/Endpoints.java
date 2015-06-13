@@ -1,4 +1,6 @@
-package com.scanii.client;
+package com.scanii.client.misc;
+
+import com.scanii.client.ScaniiTarget;
 
 import java.util.HashMap;
 import java.util.Map;
