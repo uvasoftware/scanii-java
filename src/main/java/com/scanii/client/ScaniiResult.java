@@ -2,9 +2,12 @@ package com.scanii.client;
 
 import java.util.List;
 
+/**
+ * Generic API response object
+ */
 public class ScaniiResult {
   private String rawResponse;
-  private String fileId;
+  private String resourceId;
   private String contentType;
   private long contentLength;
   private String resourceLocation;
@@ -13,6 +16,8 @@ public class ScaniiResult {
   private List<String> findings = null;
   private String checksum;
   private String message;
+  private String expirationDate;
+  private String creationDate;
 
   public String getRawResponse() {
     return rawResponse;
@@ -22,12 +27,12 @@ public class ScaniiResult {
     this.rawResponse = rawResponse;
   }
 
-  public String getFileId() {
-    return fileId;
+  public String getResourceId() {
+    return resourceId;
   }
 
-  public void setFileId(String fileId) {
-    this.fileId = fileId;
+  public void setResourceId(String resourceId) {
+    this.resourceId = resourceId;
   }
 
   public String getContentType() {
@@ -81,7 +86,7 @@ public class ScaniiResult {
   @Override
   public String toString() {
     return "ScaniiResult{" +
-      "fileId='" + fileId + '\'' +
+      "resourceId='" + resourceId + '\'' +
       ", contentType='" + contentType + '\'' +
       ", contentLength=" + contentLength +
       ", resourceLocation='" + resourceLocation + '\'' +
@@ -105,5 +110,21 @@ public class ScaniiResult {
 
   public void setMessage(String message) {
     this.message = message;
+  }
+
+  public void setExpirationDate(String expirationDate) {
+    this.expirationDate = expirationDate;
+  }
+
+  public String getExpirationDate() {
+    return expirationDate;
+  }
+
+  public void setCreationDate(String creationDate) {
+    this.creationDate = creationDate;
+  }
+
+  public String getCreationDate() {
+    return creationDate;
   }
 }

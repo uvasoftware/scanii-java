@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 /**
- * High performance client wrapper for handling large number of files
+ * High performance batch client for concurrently processing lots of files
  */
 public class BatchScaniiClient {
   private static final int MAX_CONCURRENT_REQUESTS = 10;
@@ -33,7 +33,7 @@ public class BatchScaniiClient {
   /**
    * Submits a file for batch processing
    * @param content Path to the content to be processed
-   * @param handler Method to be called once processing is completed and a result is at hand
+   * @param handler Method to be called once processing is completed and a retrieve is at hand
    */
   public void submit(final Path content, final ScaniiResultHandler handler) {
     try {
@@ -42,7 +42,7 @@ public class BatchScaniiClient {
         @Override
         public void run() {
           String originalThreadName = Thread.currentThread().getName();
-          Thread.currentThread().setName("ScaniiBatchWorker");
+          Thread.currentThread().setName(String.format("ScaniiBatchWorker[%s]", content.getFileName()));
           try {
             ScaniiResult result = client.process(content);
             handler.handle(result);

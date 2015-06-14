@@ -11,9 +11,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Thread safe client to the Scanii content processing service
+ * Thread safe client to the Scanii content processing service.
+ * Please note that this client does not throw checked exceptions, all exceptions are wrapped around a ScaniiException that extends RuntimeException
+ *
+ * @see <a href="http://docs.scanii.com/v2.0/resources.html">http://docs.scanii.com/v2.0/resources.html</a>
  */
 public class ScaniiClient {
 
@@ -27,9 +31,20 @@ public class ScaniiClient {
   public ScaniiClient(ScaniiTarget target, String key, String secret) {
     this.target = target;
     this.key = key;
+
+    // it's better to use null then an empty secret:
+    if (secret != null && secret.length() == 0) {
+      secret = null;
+    }
     this.secret = secret;
   }
 
+  /**
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   *
+   * @param content path to the file to be processed
+   * @return
+   */
   public ScaniiResult process(Path content) {
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files"))
@@ -49,6 +64,12 @@ public class ScaniiClient {
     }
   }
 
+  /**
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   *
+   * @param content path to the file to be processed
+   * @return
+   */
   public ScaniiResult processAsync(Path content) {
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/async"))
@@ -68,7 +89,13 @@ public class ScaniiClient {
     }
   }
 
-  public ScaniiResult result(String id) {
+  /**
+   * Fetches the results of a previously processed file @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   *
+   * @param id id of the content/file to be retrieved
+   * @return
+   */
+  public ScaniiResult retrieve(String id) {
     try {
       HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "files/" + id))
         .basic(key, secret)
@@ -90,6 +117,13 @@ public class ScaniiClient {
     return fetch(location, null);
   }
 
+  /**
+   * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   *
+   * @param location location (URL) of the content to be processed
+   * @param callback location (URL) to be notified and receive the result
+   * @return
+   */
   public ScaniiResult fetch(String location, String callback) {
     try {
 
@@ -111,6 +145,90 @@ public class ScaniiClient {
     }
   }
 
+  /**
+   * Pings the scanii service using the credentials provided @see <a href="http://docs.scanii.com/v2.0/resources.html#ping">http://docs.scanii.com/v2.0/resources.html#ping</a>
+   *
+   * @return true if we saw a pong back from scanii
+   */
+  public boolean ping() {
+    try {
+
+      HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "ping"))
+        .basic(key, secret)
+        .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
+        .readTimeout(DEFAULT_READ_TIMEOUT);
+
+      if (r.code() != 200) {
+        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+      }
+
+      return true;
+
+    } catch (Exception ex) {
+      throw new ScaniiException(ex);
+    }
+  }
+
+
+  /**
+   * Creates a new temporary authentication token @see <a href="http://docs.scanii.com/v2.0/resources.html#auth-tokens">http://docs.scanii.com/v2.0/resources.html#auth-tokens</a>
+   *
+   * @param timeout     how long the token should be valid for"
+   * @param timeoutUnit unit use to calculate the timeout
+   * @return
+   */
+  public ScaniiResult createAuthToken(int timeout, TimeUnit timeoutUnit) {
+    HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "auth/tokens"))
+      .basic(key, secret)
+      .form("timeout", timeoutUnit.toSeconds(timeout))
+      .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
+      .readTimeout(DEFAULT_READ_TIMEOUT);
+
+    if (r.code() != 201) {
+      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+    }
+
+    return processResponse(r);
+
+  }
+
+  /**
+   * Deletes a previously created authentication token
+   * @param id the id of the token to be deleted
+   * @return true if the deletion succeed
+   */
+  public boolean deleteAuthToken(String id) {
+    HttpRequest r = HttpRequest.delete(Endpoints.resolve(target, "auth/tokens" + "/" + id))
+      .basic(key, secret)
+      .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
+      .readTimeout(DEFAULT_READ_TIMEOUT);
+
+    if (r.code() != 204) {
+      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+    }
+
+    return true;
+
+  }
+
+  /**
+   * Retrives a previoulsy created auth token
+   * @param id the id of the token to be retrieved
+   * @return
+   */
+  public ScaniiResult retrieveAuthToken(String id) {
+    HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "auth/tokens" + "/" + id))
+      .basic(key, secret)
+      .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
+      .readTimeout(DEFAULT_READ_TIMEOUT);
+
+    if (r.code() != 200) {
+      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+    }
+
+    return processResponse(r);
+
+  }
 
   private ScaniiResult processResponse(HttpRequest response) {
     try {
@@ -122,7 +240,7 @@ public class ScaniiClient {
 
       JsonNode js = JSON.load(response.body());
       result.setRawResponse(js.toString());
-      result.setFileId(js.get("id").asText());
+      result.setResourceId(js.get("id").asText());
 
       if (js.has("findings")) {
         result.setContentType(js.get("content_type").asText());
@@ -140,6 +258,13 @@ public class ScaniiClient {
 
       if (js.has("message")) {
         result.setMessage(js.get("message").asText());
+      }
+
+      if (js.has("expiration_date")) {
+        result.setExpirationDate(js.get("expiration_date").asText());
+      }
+      if (js.has("creation_date")) {
+        result.setCreationDate(js.get("creation_date").asText());
       }
 
       return result;

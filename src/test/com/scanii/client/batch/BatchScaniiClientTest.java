@@ -9,8 +9,8 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BatchScaniiClientTest {
-  private static final String KEY = System.getenv("TEST_KEY");
-  private static final String SECRET = System.getenv("TEST_SECRET");
+  private static final String KEY = System.getProperty("SCANII_CREDS").split(":")[0];
+  private static final String SECRET = System.getProperty("SCANII_CREDS").split(":")[1];
 
   @Test
   public void testSubmit() throws Exception {
@@ -22,7 +22,7 @@ public class BatchScaniiClientTest {
       bclient.submit(Systems.randomFile(1024), new ScaniiResultHandler() {
         @Override
         public void handle(ScaniiResult result) {
-          System.out.println(String.format("File %s checksum: %s findings: %s", result.getFileId(), result.getChecksum(), result.getFindings()));
+          System.out.println(String.format("File %s checksum: %s findings: %s", result.getResourceId(), result.getChecksum(), result.getFindings()));
           results.incrementAndGet();
         }
       });
