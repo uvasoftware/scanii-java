@@ -48,6 +48,7 @@ public class ScaniiClient {
   public ScaniiResult process(Path content) {
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files"))
+        .userAgent(HttpHeaders.UA)
         .basic(key, secret)
         .part("file", content.toFile())
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
@@ -73,6 +74,7 @@ public class ScaniiClient {
   public ScaniiResult processAsync(Path content) {
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/async"))
+        .userAgent(HttpHeaders.UA)
         .basic(key, secret)
         .part("file", content.toFile())
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
@@ -98,6 +100,7 @@ public class ScaniiClient {
   public ScaniiResult retrieve(String id) {
     try {
       HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "files/" + id))
+        .userAgent(HttpHeaders.UA)
         .basic(key, secret)
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -128,6 +131,7 @@ public class ScaniiClient {
     try {
 
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/fetch"))
+        .userAgent(HttpHeaders.UA)
         .basic(key, secret)
         .form("location", location)
         .form("callback", callback)
@@ -154,6 +158,7 @@ public class ScaniiClient {
     try {
 
       HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "ping"))
+        .userAgent(HttpHeaders.UA)
         .basic(key, secret)
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -179,6 +184,7 @@ public class ScaniiClient {
    */
   public ScaniiResult createAuthToken(int timeout, TimeUnit timeoutUnit) {
     HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "auth/tokens"))
+      .userAgent(HttpHeaders.UA)
       .basic(key, secret)
       .form("timeout", timeoutUnit.toSeconds(timeout))
       .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
@@ -194,11 +200,13 @@ public class ScaniiClient {
 
   /**
    * Deletes a previously created authentication token
+   *
    * @param id the id of the token to be deleted
    * @return true if the deletion succeed
    */
   public boolean deleteAuthToken(String id) {
     HttpRequest r = HttpRequest.delete(Endpoints.resolve(target, "auth/tokens" + "/" + id))
+      .userAgent(HttpHeaders.UA)
       .basic(key, secret)
       .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
       .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -213,11 +221,13 @@ public class ScaniiClient {
 
   /**
    * Retrives a previoulsy created auth token
+   *
    * @param id the id of the token to be retrieved
    * @return
    */
   public ScaniiResult retrieveAuthToken(String id) {
     HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "auth/tokens" + "/" + id))
+      .userAgent(HttpHeaders.UA)
       .basic(key, secret)
       .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
       .readTimeout(DEFAULT_READ_TIMEOUT);

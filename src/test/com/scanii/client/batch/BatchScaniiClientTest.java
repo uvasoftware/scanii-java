@@ -9,8 +9,8 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BatchScaniiClientTest {
-  private static final String KEY = System.getProperty("SCANII_CREDS").split(":")[0];
-  private static final String SECRET = System.getProperty("SCANII_CREDS").split(":")[1];
+  private static final String KEY = System.getenv("TEST_KEY");
+  private static final String SECRET = System.getenv("TEST_SECRET");
 
   @Test
   public void testSubmit() throws Exception {

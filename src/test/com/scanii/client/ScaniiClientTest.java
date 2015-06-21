@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class ScaniiClientTest {
-  private static final String KEY = System.getProperty("SCANII_CREDS").split(":")[0];
-  private static final String SECRET = System.getProperty("SCANII_CREDS").split(":")[1];
+  private static final String KEY = System.getenv("TEST_KEY");
+  private static final String SECRET = System.getenv("TEST_SECRET");
   private final Path eicarFile;
 
   public ScaniiClientTest() throws IOException {
