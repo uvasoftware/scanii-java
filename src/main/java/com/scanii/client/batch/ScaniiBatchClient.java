@@ -8,36 +8,42 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * High performance batch client for concurrently processing lots of files
  */
-public class BatchScaniiClient {
-  private static final int MAX_CONCURRENT_REQUESTS = 10;
-  private final Semaphore pending;
+public class ScaniiBatchClient {
+  private static final int MAX_CONCURRENT_REQUESTS = 10 * Runtime.getRuntime().availableProcessors();
+  private final Semaphore semaphore;
 
   private final ExecutorService workers;
-
   private final ScaniiClient client;
+  private final AtomicInteger pending = new AtomicInteger();
+  private final AtomicLong completed = new AtomicLong();
+  private final AtomicLong failed = new AtomicLong();
 
-  public BatchScaniiClient(ScaniiClient client) {
+  public ScaniiBatchClient(ScaniiClient client) {
     this(client, MAX_CONCURRENT_REQUESTS);
   }
 
-  public BatchScaniiClient(ScaniiClient client, int maxConcurrentRequests) {
+  public ScaniiBatchClient(ScaniiClient client, int maxConcurrentRequests) {
     this.client = client;
-    pending = new Semaphore(maxConcurrentRequests);
+    semaphore = new Semaphore(maxConcurrentRequests);
     workers = Executors.newWorkStealingPool(maxConcurrentRequests);
   }
 
   /**
    * Submits a file for batch processing
+   *
    * @param content Path to the content to be processed
    * @param handler Method to be called once processing is completed and a retrieve is at hand
    */
   public void submit(final Path content, final ScaniiResultHandler handler) {
     try {
-      pending.acquire();
+      semaphore.acquire();
+      pending.incrementAndGet();
       workers.execute(new Runnable() {
         @Override
         public void run() {
@@ -46,16 +52,30 @@ public class BatchScaniiClient {
           try {
             ScaniiResult result = client.process(content);
             handler.handle(result);
-
+            completed.incrementAndGet();
           } finally {
             Thread.currentThread().setName(originalThreadName);
+            pending.decrementAndGet();
           }
         }
       });
     } catch (Exception ex) {
+      failed.incrementAndGet();
       throw new ScaniiException(ex);
     } finally {
-      pending.release();
+      semaphore.release();
     }
+  }
+
+  public boolean hasPending() {
+    return pending.get() > 0;
+  }
+
+  public long getCompletedCount() {
+    return completed.get();
+  }
+
+  public long getFailedCount() {
+    return failed.get();
   }
 }

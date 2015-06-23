@@ -8,13 +8,13 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BatchScaniiClientTest {
+public class ScaniiBatchClientTest {
   private static final String KEY = System.getenv("TEST_KEY");
   private static final String SECRET = System.getenv("TEST_SECRET");
 
   @Test
   public void testSubmit() throws Exception {
-    BatchScaniiClient bclient = new BatchScaniiClient(new ScaniiClient(ScaniiTarget.v2_0_EU1, KEY, SECRET));
+    ScaniiBatchClient bclient = new ScaniiBatchClient(new ScaniiClient(ScaniiTarget.v2_0_EU1, KEY, SECRET));
     final AtomicInteger results = new AtomicInteger();
 
     int count = 100;
