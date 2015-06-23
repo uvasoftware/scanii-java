@@ -7,6 +7,7 @@ import com.scanii.client.ScaniiResult;
 import com.scanii.client.ScaniiTarget;
 import com.scanii.client.batch.ScaniiBatchClient;
 import com.scanii.client.batch.ScaniiResultHandler;
+import com.scanii.client.misc.Endpoints;
 import humanize.Humanize;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -50,11 +51,21 @@ public class ScaniiCLI {
     final String KEY = ns.getString("credentials").split(":")[0];
     final String SECRET = ns.getString("credentials").split(":")[1];
 
+    // endpoint:
+    ScaniiTarget target = ScaniiTarget.v2_0;
+    if (ns.getString("endpoint").equals("us1")) {
+      target = ScaniiTarget.v2_0_US1;
+    } else if (ns.getString("endpoint").equals("eu1")) {
+      target = ScaniiTarget.v2_0_EU1;
+    }
+
     // bootstrapping:
     System.out.println("scanii-cli starting....");
+    System.out.println("using endpoint: " + Endpoints.resolve(target, ""));
     System.out.println("using key: " + KEY);
     System.out.print("verifying connectivity to scanii service...");
-    final ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
+
+    final ScaniiClient client = new ScaniiClient(target, KEY, SECRET);
     try {
       client.ping();
     } catch (ScaniiException ex) {
