@@ -43,7 +43,7 @@ public class ScaniiClient {
    * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
    *
    * @param content path to the file to be processed
-   * @return
+   * @return scanii result @see ScaniiResult
    */
   public ScaniiResult process(Path content) {
     try {
@@ -69,7 +69,7 @@ public class ScaniiClient {
    * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
    *
    * @param content path to the file to be processed
-   * @return
+   * @return scanii result @see ScaniiResult
    */
   public ScaniiResult processAsync(Path content) {
     try {
@@ -95,7 +95,7 @@ public class ScaniiClient {
    * Fetches the results of a previously processed file @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
    *
    * @param id id of the content/file to be retrieved
-   * @return
+   * @return scanii result @see ScaniiResult
    */
   public ScaniiResult retrieve(String id) {
     try {
@@ -125,7 +125,7 @@ public class ScaniiClient {
    *
    * @param location location (URL) of the content to be processed
    * @param callback location (URL) to be notified and receive the result
-   * @return
+   * @return scanii result @see ScaniiResult
    */
   public ScaniiResult fetch(String location, String callback) {
     try {
@@ -180,7 +180,7 @@ public class ScaniiClient {
    *
    * @param timeout     how long the token should be valid for"
    * @param timeoutUnit unit use to calculate the timeout
-   * @return
+   * @return scanii result @see ScaniiResult
    */
   public ScaniiResult createAuthToken(int timeout, TimeUnit timeoutUnit) {
     HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "auth/tokens"))
@@ -223,7 +223,7 @@ public class ScaniiClient {
    * Retrives a previoulsy created auth token
    *
    * @param id the id of the token to be retrieved
-   * @return
+   * @return scanii result @see ScaniiResult
    */
   public ScaniiResult retrieveAuthToken(String id) {
     HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "auth/tokens" + "/" + id))
