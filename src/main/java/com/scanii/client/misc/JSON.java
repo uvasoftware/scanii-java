@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,6 @@ public class JSON {
   private static ObjectMapper mapper = new ObjectMapper();
 
   static {
-    mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     mapper.setDateFormat(new ISO8601DateFormat());
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
