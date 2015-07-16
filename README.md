@@ -15,7 +15,7 @@
 #### Installing using gradle:
 
 ```
-compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.7'
+compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.8'
 ```
 
 ### Basic usage:
