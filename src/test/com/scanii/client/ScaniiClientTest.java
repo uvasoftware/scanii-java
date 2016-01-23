@@ -27,7 +27,7 @@ public class ScaniiClientTest {
 
   @Before
   public void before() {
-    client = new ScaniiClient(ScaniiTarget.v2_1, KEY, SECRET);
+    client = new ScaniiClient(ScaniiTarget.latest(), KEY, SECRET);
   }
 
   @Test

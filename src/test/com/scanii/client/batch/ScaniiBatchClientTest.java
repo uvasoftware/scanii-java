@@ -14,7 +14,7 @@ public class ScaniiBatchClientTest {
 
   @Test
   public void testSubmit() throws Exception {
-    ScaniiBatchClient bclient = new ScaniiBatchClient(new ScaniiClient(ScaniiTarget.v2_0_EU1, KEY, SECRET));
+    ScaniiBatchClient bclient = new ScaniiBatchClient(new ScaniiClient(ScaniiTarget.latest(), KEY, SECRET));
     final AtomicInteger results = new AtomicInteger();
 
     int count = 100;

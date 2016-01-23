@@ -42,7 +42,7 @@ public class ScaniiBatchClient {
    * Submits a file for batch processing
    *
    * @param content Path to the content to be processed
-   * @param handler Method to be called once processing is completed and a retrieve is at hand
+   * @param handler Method to be called once processing is completed and a result is at hand
    */
   public void submit(final Path content, final ScaniiResultHandler handler) {
     try {
