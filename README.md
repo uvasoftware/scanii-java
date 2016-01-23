@@ -9,19 +9,19 @@
 <dependency>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>2.8</version>
+  <version>2.9</version>
 </dependency>
 ```
 #### Installing using gradle:
 
 ```
-compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.8'
+compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.9'
 ```
 
 ### Basic usage:
  
 ```
-// creating the client
+ // creating the client
  ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
  
  // scans a file
