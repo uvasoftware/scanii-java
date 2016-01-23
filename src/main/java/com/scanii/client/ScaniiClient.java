@@ -2,24 +2,26 @@ package com.scanii.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.kevinsawicki.http.HttpRequest;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.scanii.client.misc.Endpoints;
 import com.scanii.client.misc.HttpHeaders;
 import com.scanii.client.misc.JSON;
+import com.scanii.client.misc.Loggers;
+import org.slf4j.Logger;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Thread safe client to the Scanii content processing service.
  * Please note that this client does not throw checked exceptions, all exceptions are wrapped around a ScaniiException that extends RuntimeException
  *
- * @see <a href="http://docs.scanii.com/v2.0/resources.html">http://docs.scanii.com/v2.0/resources.html</a>
+ * @see <a href="http://docs.scanii.com/v2.1/resources.html">http://docs.scanii.com/v2.1/resources.html</a>
  */
 public class ScaniiClient {
+  private static final Logger LOG = Loggers.build();
 
   private final ScaniiTarget target;
   private final String key;
@@ -27,7 +29,12 @@ public class ScaniiClient {
   private final int DEFAULT_CONNECTION_TIMEOUT = 30000;
   private final int DEFAULT_READ_TIMEOUT = 60000;
 
-
+  /**
+   * Creates a new Scanii Client
+   * @param target the API version and location target @see ScaniiTarget
+   * @param key your API key
+   * @param secret your API secret
+     */
   public ScaniiClient(ScaniiTarget target, String key, String secret) {
     this.target = target;
     this.key = key;
@@ -40,12 +47,16 @@ public class ScaniiClient {
   }
 
   /**
-   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
-   * @param content path to the file to be processed
+   * @param content  path to the file to be processed
+   * @param metadata optional metadata to be added to this file
    * @return scanii result @see ScaniiResult
    */
-  public ScaniiResult process(Path content) {
+  public ScaniiResult process(Path content, Map<String, String> metadata) {
+    Preconditions.checkNotNull(content);
+    Preconditions.checkNotNull(metadata);
+
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files"))
         .userAgent(HttpHeaders.UA)
@@ -53,6 +64,10 @@ public class ScaniiClient {
         .part("file", content.toFile())
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
+
+      for (Map.Entry<String, String> e : metadata.entrySet()) {
+        r.part(metadataKey(e.getKey()), e.getValue());
+      }
 
       if (r.code() != 201) {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
@@ -66,7 +81,17 @@ public class ScaniiClient {
   }
 
   /**
-   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   *
+   * @param content path to the file to be processed
+   * @return scanii result @see ScaniiResult
+   */
+  public ScaniiResult process(Path content) {
+    return process(content, ImmutableMap.<String, String>of());
+  }
+
+  /**
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content path to the file to be processed
    * @return scanii result @see ScaniiResult
@@ -92,7 +117,7 @@ public class ScaniiClient {
   }
 
   /**
-   * Fetches the results of a previously processed file @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   * Fetches the results of a previously processed file @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param id id of the content/file to be retrieved
    * @return scanii result @see ScaniiResult
@@ -106,7 +131,7 @@ public class ScaniiClient {
         .readTimeout(DEFAULT_READ_TIMEOUT);
 
       if (r.code() != 200) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
       }
 
       return processResponse(r);
@@ -121,7 +146,7 @@ public class ScaniiClient {
   }
 
   /**
-   * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.0/resources.html#files">http://docs.scanii.com/v2.0/resources.html#files</a>
+   * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param location location (URL) of the content to be processed
    * @param callback location (URL) to be notified and receive the result
@@ -139,7 +164,7 @@ public class ScaniiClient {
         .readTimeout(DEFAULT_READ_TIMEOUT);
 
       if (r.code() != 202) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
       }
 
       return processResponse(r);
@@ -150,7 +175,7 @@ public class ScaniiClient {
   }
 
   /**
-   * Pings the scanii service using the credentials provided @see <a href="http://docs.scanii.com/v2.0/resources.html#ping">http://docs.scanii.com/v2.0/resources.html#ping</a>
+   * Pings the scanii service using the credentials provided @see <a href="http://docs.scanii.com/v2.1/resources.html#ping">http://docs.scanii.com/v2.1/resources.html#ping</a>
    *
    * @return true if we saw a pong back from scanii
    */
@@ -164,7 +189,7 @@ public class ScaniiClient {
         .readTimeout(DEFAULT_READ_TIMEOUT);
 
       if (r.code() != 200) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
       }
 
       return true;
@@ -176,7 +201,7 @@ public class ScaniiClient {
 
 
   /**
-   * Creates a new temporary authentication token @see <a href="http://docs.scanii.com/v2.0/resources.html#auth-tokens">http://docs.scanii.com/v2.0/resources.html#auth-tokens</a>
+   * Creates a new temporary authentication token @see <a href="http://docs.scanii.com/v2.1/resources.html#auth-tokens">http://docs.scanii.com/v2.1/resources.html#auth-tokens</a>
    *
    * @param timeout     how long the token should be valid for"
    * @param timeoutUnit unit use to calculate the timeout
@@ -191,7 +216,7 @@ public class ScaniiClient {
       .readTimeout(DEFAULT_READ_TIMEOUT);
 
     if (r.code() != 201) {
-      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
     }
 
     return processResponse(r);
@@ -212,7 +237,7 @@ public class ScaniiClient {
       .readTimeout(DEFAULT_READ_TIMEOUT);
 
     if (r.code() != 204) {
-      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
     }
 
     return true;
@@ -233,7 +258,7 @@ public class ScaniiClient {
       .readTimeout(DEFAULT_READ_TIMEOUT);
 
     if (r.code() != 200) {
-      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.message()));
+      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
     }
 
     return processResponse(r);
@@ -276,12 +301,26 @@ public class ScaniiClient {
       if (js.has("creation_date")) {
         result.setCreationDate(js.get("creation_date").asText());
       }
+      if (js.has("metadata")) {
+        Iterator<Map.Entry<String, JsonNode>> iter = js.get("metadata").fields();
+        while (iter.hasNext()) {
+          Map.Entry<String, JsonNode> entry = iter.next();
+
+          LOG.debug("processing metadata k: {} v: {}", entry.getKey(), entry.getValue().asText());
+          result.getMetadata().put(entry.getKey(), entry.getValue().asText());
+        }
+
+      }
 
       return result;
 
     } catch (Exception ex) {
       throw new ScaniiException("Invalid response from service " + ex.getMessage(), ex);
     }
+  }
+
+  private String metadataKey(String key) {
+    return String.format("metadata[%s]", key);
   }
 
 }

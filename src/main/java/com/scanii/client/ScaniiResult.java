@@ -1,10 +1,15 @@
 package com.scanii.client;
 
+import com.google.common.collect.Maps;
+
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Generic API response object
  */
+@NotThreadSafe
 public class ScaniiResult {
   private String rawResponse;
   private String resourceId;
@@ -18,6 +23,7 @@ public class ScaniiResult {
   private String message;
   private String expirationDate;
   private String creationDate;
+  private Map<String, String> metadata = Maps.newHashMap();
 
   public String getRawResponse() {
     return rawResponse;
@@ -93,6 +99,11 @@ public class ScaniiResult {
       ", requestId='" + requestId + '\'' +
       ", hostId='" + hostId + '\'' +
       ", findings=" + findings +
+      ", checksum='" + checksum + '\'' +
+      ", message='" + message + '\'' +
+      ", expirationDate='" + expirationDate + '\'' +
+      ", creationDate='" + creationDate + '\'' +
+      ", metadata=" + metadata +
       '}';
   }
 
@@ -112,19 +123,23 @@ public class ScaniiResult {
     this.message = message;
   }
 
+  public String getExpirationDate() {
+    return expirationDate;
+  }
+
   public void setExpirationDate(String expirationDate) {
     this.expirationDate = expirationDate;
   }
 
-  public String getExpirationDate() {
-    return expirationDate;
+  public String getCreationDate() {
+    return creationDate;
   }
 
   public void setCreationDate(String creationDate) {
     this.creationDate = creationDate;
   }
 
-  public String getCreationDate() {
-    return creationDate;
+  public Map<String, String> getMetadata() {
+    return metadata;
   }
 }

@@ -3,6 +3,8 @@ package com.scanii.client.batch;
 import com.scanii.client.ScaniiClient;
 import com.scanii.client.ScaniiException;
 import com.scanii.client.ScaniiResult;
+import com.scanii.client.misc.Loggers;
+import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * High performance batch client for concurrently processing lots of files
  */
 public class ScaniiBatchClient {
+  private static final Logger LOG = Loggers.build();
   private static final int MAX_CONCURRENT_REQUESTS = 10 * Runtime.getRuntime().availableProcessors();
   private final Semaphore semaphore;
 
@@ -32,6 +35,7 @@ public class ScaniiBatchClient {
     this.client = client;
     semaphore = new Semaphore(maxConcurrentRequests);
     workers = Executors.newWorkStealingPool(maxConcurrentRequests);
+    LOG.info("batch client created with {} max concurrent requests", maxConcurrentRequests);
   }
 
   /**
@@ -51,8 +55,8 @@ public class ScaniiBatchClient {
           Thread.currentThread().setName(String.format("ScaniiBatchWorker[%s]", content.getFileName()));
           try {
             ScaniiResult result = client.process(content);
-            handler.handle(result);
             completed.incrementAndGet();
+            handler.handle(result);
           } finally {
             Thread.currentThread().setName(originalThreadName);
             pending.decrementAndGet();

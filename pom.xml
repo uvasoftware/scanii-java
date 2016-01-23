@@ -37,7 +37,6 @@
     <connection>scm:git:git@github.com:uvasoftware/scanii-java.git</connection>
     <developerConnection>scm:git:git@github.com:uvasoftware/scanii-java.git</developerConnection>
     <url>git@github.com:uvasoftware/scanii-java.git</url>
-    <tag>scanii-java-2.3</tag>
   </scm>
 
   <distributionManagement>
@@ -222,6 +221,16 @@
       <groupId>com.github.mfornos</groupId>
       <artifactId>humanize-slim</artifactId>
       <version>1.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>18.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.13</version>
     </dependency>
   </dependencies>
 </project>

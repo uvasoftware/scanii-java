@@ -1,9 +1,13 @@
 package com.scanii.client;
 
+import com.google.common.collect.ImmutableMap;
 import com.scanii.client.misc.EICAR;
 import com.scanii.client.misc.Systems;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,14 +19,19 @@ public class ScaniiClientTest {
   private static final String KEY = System.getenv("TEST_KEY");
   private static final String SECRET = System.getenv("TEST_SECRET");
   private final Path eicarFile;
+  private ScaniiClient client;
 
   public ScaniiClientTest() throws IOException {
     this.eicarFile = Files.write(Files.createTempFile(null, null), EICAR.SIGNATURE.getBytes());
   }
 
+  @Before
+  public void before() {
+    client = new ScaniiClient(ScaniiTarget.v2_1, KEY, SECRET);
+  }
+
   @Test
   public void testProcess() throws Exception {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
 
     ScaniiResult result;
     // simple processing clean
@@ -56,9 +65,21 @@ public class ScaniiClientTest {
 
   }
 
+  @Test
+  public void testProcessWithMetadata() throws Exception {
+
+    ScaniiResult result;
+
+    // simple processing clean
+    result = client.process(Systems.randomFile(1024), ImmutableMap.of("foo" , "bar"));
+    assertNotNull(result.getResourceId());
+    assertEquals("bar", result.getMetadata().get("foo"));
+    System.out.println(result);
+  }
+
+
   @Test(expected = ScaniiException.class)
   public void shoudlThrowErrosIfInvalidPost() throws IOException {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
 
     // empty file:
     client.process(Files.createTempFile(null, null));
@@ -76,7 +97,6 @@ public class ScaniiClientTest {
 
   @Test
   public void testProcessAsync() throws Exception {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
 
     ScaniiResult result;
     // simple processing clean
@@ -109,7 +129,6 @@ public class ScaniiClientTest {
 
   @Test
   public void testFetchWithoutCallback() throws InterruptedException {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
 
     ScaniiResult result;
     // simple processing clean
@@ -141,7 +160,6 @@ public class ScaniiClientTest {
 
   @Test
   public void testFetchWithCallback() throws InterruptedException {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
 
     ScaniiResult result;
     // simple processing clean
@@ -173,13 +191,11 @@ public class ScaniiClientTest {
 
   @Test
   public void testPing() throws Exception {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
     assertTrue(client.ping());
   }
 
   @Test
   public void testCreateAuthToken() throws Exception {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0_EU1, KEY, SECRET);
     ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
     assertNotNull(result.getResourceId());
     assertNotNull(result.getExpirationDate());
@@ -206,18 +222,23 @@ public class ScaniiClientTest {
 
   @Test
   public void testDeleteAuthToken() throws Exception {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0_EU1, KEY, SECRET);
     ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
     client.deleteAuthToken(result.getResourceId());
   }
 
   @Test
   public void testRetrieveAuthToken() throws Exception {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0_EU1, KEY, SECRET);
     ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
     ScaniiResult result2 = client.retrieveAuthToken(result.getResourceId());
     assertEquals(result.getResourceId(), result2.getResourceId());
     assertEquals(result.getCreationDate(), result2.getCreationDate());
     assertEquals(result.getExpirationDate(), result2.getExpirationDate());
+  }
+
+  @Test
+  @Ignore("slow test")
+  public void shouldHandleLargeFiles() throws IOException {
+    Path f = Systems.randomFile(104857600);
+    client.process(f);
   }
 }

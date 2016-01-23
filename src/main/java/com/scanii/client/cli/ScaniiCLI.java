@@ -31,7 +31,7 @@ public class ScaniiCLI {
       .required(true);
 
     parser.addArgument("-e", "--endpoint")
-      .choices("us1", "eu1", "auto")
+      .choices("us1", "eu1", "auto", "local")
       .help("api endpoint to be used, see: http://docs.scanii.com/articles/understanding-api-endpoints.html")
       .setDefault("auto");
 
@@ -52,11 +52,14 @@ public class ScaniiCLI {
     final String SECRET = ns.getString("credentials").split(":")[1];
 
     // endpoint:
-    ScaniiTarget target = ScaniiTarget.v2_0;
+    ScaniiTarget target = ScaniiTarget.latest();
+
     if (ns.getString("endpoint").equals("us1")) {
-      target = ScaniiTarget.v2_0_US1;
+      target = ScaniiTarget.v2_1_US1;
     } else if (ns.getString("endpoint").equals("eu1")) {
-      target = ScaniiTarget.v2_0_EU1;
+      target = ScaniiTarget.v2_1_EU1;
+    } else if (ns.getString("endpoint").equals("local")) {
+      target = ScaniiTarget.LOCAL;
     }
 
     // bootstrapping:
