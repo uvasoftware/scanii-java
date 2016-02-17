@@ -31,10 +31,11 @@ public class ScaniiClient {
 
   /**
    * Creates a new Scanii Client
+   *
    * @param target the API version and location target @see ScaniiTarget
-   * @param key your API key
+   * @param key    your API key
    * @param secret your API secret
-     */
+   */
   public ScaniiClient(ScaniiTarget target, String key, String secret) {
     this.target = target;
     this.key = key;
@@ -93,10 +94,14 @@ public class ScaniiClient {
   /**
    * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
-   * @param content path to the file to be processed
+   * @param content  path to the file to be processed
+   * @param metadata optional metadata to be added to this file
    * @return scanii result @see ScaniiResult
    */
-  public ScaniiResult processAsync(Path content) {
+  public ScaniiResult processAsync(Path content, Map<String, String> metadata) {
+    Preconditions.checkNotNull(content);
+    Preconditions.checkNotNull(metadata);
+
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/async"))
         .userAgent(HttpHeaders.UA)
@@ -104,6 +109,10 @@ public class ScaniiClient {
         .part("file", content.toFile())
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
+
+      for (Map.Entry<String, String> e : metadata.entrySet()) {
+        r.part(metadataKey(e.getKey()), e.getValue());
+      }
 
       if (r.code() != 202) {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
@@ -114,6 +123,16 @@ public class ScaniiClient {
     } catch (Exception ex) {
       throw new ScaniiException(ex);
     }
+  }
+
+  /**
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   *
+   * @param content path to the file to be processed
+   * @return scanii result @see ScaniiResult
+   */
+  public ScaniiResult processAsync(Path content) {
+    return processAsync(content, ImmutableMap.<String, String>of());
   }
 
   /**
@@ -141,8 +160,14 @@ public class ScaniiClient {
     }
   }
 
+  /**
+   * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   *
+   * @param location location (URL) of the content to be processed
+   * @return scanii result @see ScaniiResult
+   */
   public ScaniiResult fetch(String location) {
-    return fetch(location, null);
+    return fetch(location, null, ImmutableMap.<String, String>of());
   }
 
   /**
@@ -153,6 +178,21 @@ public class ScaniiClient {
    * @return scanii result @see ScaniiResult
    */
   public ScaniiResult fetch(String location, String callback) {
+    return fetch(location, callback, ImmutableMap.<String, String>of());
+  }
+
+  /**
+   * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   *
+   * @param location location (URL) of the content to be processed
+   * @param callback location (URL) to be notified and receive the result
+   * @param metadata optional metadata to be added to this file
+   * @return scanii result @see ScaniiResult
+   */
+  public ScaniiResult fetch(String location, String callback, Map<String, String> metadata) {
+    Preconditions.checkNotNull(location);
+    Preconditions.checkNotNull(metadata);
+
     try {
 
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/fetch"))
@@ -162,6 +202,10 @@ public class ScaniiClient {
         .form("callback", callback)
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
+
+      for (Map.Entry<String, String> e : metadata.entrySet()) {
+        r.form(metadataKey(e.getKey()), e.getValue());
+      }
 
       if (r.code() != 202) {
         throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
@@ -245,7 +289,7 @@ public class ScaniiClient {
   }
 
   /**
-   * Retrives a previoulsy created auth token
+   * Retrieves a previously created auth token
    *
    * @param id the id of the token to be retrieved
    * @return scanii result @see ScaniiResult

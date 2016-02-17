@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,7 +70,7 @@ public class ScaniiClientTest {
     ScaniiResult result;
 
     // simple processing clean
-    result = client.process(Systems.randomFile(1024), ImmutableMap.of("foo" , "bar"));
+    result = client.process(Systems.randomFile(1024), ImmutableMap.of("foo", "bar"));
     assertNotNull(result.getResourceId());
     assertEquals("bar", result.getMetadata().get("foo"));
     System.out.println(result);
@@ -79,7 +78,7 @@ public class ScaniiClientTest {
 
 
   @Test(expected = ScaniiException.class)
-  public void shoudlThrowErrosIfInvalidPost() throws IOException {
+  public void shouldThrowErrorsIfInvalidPost() throws IOException {
 
     // empty file:
     client.process(Files.createTempFile(null, null));
@@ -87,7 +86,7 @@ public class ScaniiClientTest {
   }
 
   @Test(expected = ScaniiException.class)
-  public void shoudlThrowErrosIfInvalidCredentials() throws IOException {
+  public void shouldThrowErrorsIfInvalidCredentials() throws IOException {
     ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, "foo", "bar");
 
     // empty file:
@@ -111,7 +110,7 @@ public class ScaniiClientTest {
     assertNull(result.getFindings());
     System.out.println(result);
 
-    Thread.sleep(5000);
+    Thread.sleep(1000);
 
     // now fetching the retrieve
     ScaniiResult actualResult = client.retrieve(result.getResourceId());
@@ -125,6 +124,21 @@ public class ScaniiClientTest {
     assertNotNull(actualResult.getFindings());
     assertTrue(actualResult.getFindings().isEmpty());
 
+  }
+
+  @Test
+  public void testProcessAsyncWithMetadata() throws Exception {
+
+    ScaniiResult result;
+
+    // simple processing clean
+    result = client.processAsync(Systems.randomFile(1024), ImmutableMap.of("foo", "bar"));
+    Thread.sleep(1000);
+
+    // now fetching the retrieve
+    ScaniiResult actualResult = client.retrieve(result.getResourceId());
+    assertNotNull(actualResult.getResourceId());
+    assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
 
   @Test
@@ -145,7 +159,7 @@ public class ScaniiClientTest {
 
     Thread.sleep(1000);
 
-    // fetching retrieve:
+    // fetching result:
     ScaniiResult actualResult = client.retrieve(result.getResourceId());
     assertNotNull(actualResult.getResourceId());
     assertNotNull(actualResult.getChecksum());
@@ -176,7 +190,7 @@ public class ScaniiClientTest {
 
     Thread.sleep(1000);
 
-    // fetching retrieve:
+    // fetching result:
     ScaniiResult actualResult = client.retrieve(result.getResourceId());
     assertNotNull(actualResult.getResourceId());
     assertNotNull(actualResult.getChecksum());
@@ -187,6 +201,19 @@ public class ScaniiClientTest {
     assertNotNull(actualResult.getHostId());
     assertNotNull(actualResult.getFindings());
     assertEquals("av.eicar-test-signature", actualResult.getFindings().get(0));
+  }
+
+  @Test
+  public void testFetchWithMetadata() throws Exception {
+
+    ScaniiResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", ImmutableMap.of("foo", "bar"));
+    assertNotNull(result.getResourceId());
+    Thread.sleep(1000);
+
+    // fetching result:
+    ScaniiResult actualResult = client.retrieve(result.getResourceId());
+    assertEquals("bar", actualResult.getMetadata().get("foo"));
+    System.out.println(result);
   }
 
   @Test
@@ -204,7 +231,7 @@ public class ScaniiClientTest {
     Thread.sleep(1000);
 
     // now using the auth token to create a new client and process content
-    ScaniiClient tempClient = new ScaniiClient(ScaniiTarget.v2_0_EU1, result.getResourceId(), null);
+    ScaniiClient tempClient = new ScaniiClient(ScaniiTarget.latest(), result.getResourceId(), null);
     result = tempClient.process(Systems.randomFile(1024));
     assertNotNull(result.getResourceId());
     assertNotNull(result.getChecksum());
