@@ -22,7 +22,7 @@ compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.9'
  
 ```
  // creating the client
- ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, KEY, SECRET);
+ ScaniiClient client = new ScaniiClient(ScaniiTarget.latest(), KEY, SECRET);
  
  // scans a file
  result = client.process(Paths.get("/tmp/foo.doc"));
