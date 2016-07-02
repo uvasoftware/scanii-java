@@ -9,7 +9,7 @@
 <dependency>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>2.9</version>
+  <version>2.10</version>
 </dependency>
 ```
 #### Installing using gradle:
