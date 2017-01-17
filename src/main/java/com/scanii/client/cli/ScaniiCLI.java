@@ -26,12 +26,13 @@ public class ScaniiCLI {
     ArgumentParser parser = ArgumentParsers.newArgumentParser("scanii-cli")
       .defaultHelp(true)
       .description("Scanii.com command line interface");
+
     parser.addArgument("-c", "--credentials")
       .help("api credentials to use in the KEY:SECRET format")
       .required(true);
 
     parser.addArgument("-e", "--endpoint")
-      .choices("us1", "eu1", "auto", "local")
+      .choices("us1", "eu1", "ap1", "auto", "local")
       .help("api endpoint to be used, see: http://docs.scanii.com/articles/understanding-api-endpoints.html")
       .setDefault("auto");
 
@@ -58,8 +59,8 @@ public class ScaniiCLI {
       target = ScaniiTarget.v2_1_US1;
     } else if (ns.getString("endpoint").equals("eu1")) {
       target = ScaniiTarget.v2_1_EU1;
-    } else if (ns.getString("endpoint").equals("local")) {
-      target = ScaniiTarget.LOCAL;
+    } else if (ns.getString("endpoint").equals("ap1")) {
+      target = ScaniiTarget.v2_1_AP1;
     }
 
     // bootstrapping:

@@ -9,20 +9,20 @@
 <dependency>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>2.10</version>
+  <version>2.11</version>
 </dependency>
 ```
 #### Installing using gradle:
 
 ```
-compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.10'
+compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.11'
 ```
 
 ### Basic usage:
  
 ```
  // creating the client
- ScaniiClient client = new ScaniiClient(ScaniiTarget.latest(), KEY, SECRET);
+ ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_1, KEY, SECRET);
  
  // scans a file
  result = client.process(Paths.get("/tmp/foo.doc"));
@@ -34,4 +34,6 @@ Please note that you will need a valid scanii.com account and API Credentials.
 More advanced usage examples can be found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/com/scanii/client/ScaniiClientTest.java)
 
 General documentation on scanii can be found [here](http://docs.scanii.com)
+
+This library supports JDK 7 and above. 
 

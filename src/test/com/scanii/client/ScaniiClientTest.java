@@ -3,6 +3,7 @@ package com.scanii.client;
 import com.google.common.collect.ImmutableMap;
 import com.scanii.client.misc.EICAR;
 import com.scanii.client.misc.Systems;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class ScaniiClientTest {
     assertNotNull(result.getHostId());
     assertNotNull(result.getFindings());
     assertTrue(result.getFindings().size() == 1);
-    assertEquals("av.eicar-test-signature", result.getFindings().get(0));
+    assertEquals("content.malicious.eicar-test-signature", result.getFindings().get(0));
     System.out.println(result);
 
     // failures:
@@ -169,7 +170,7 @@ public class ScaniiClientTest {
     assertNotNull(actualResult.getContentType());
     assertNotNull(actualResult.getHostId());
     assertNotNull(actualResult.getFindings());
-    assertEquals("av.eicar-test-signature", actualResult.getFindings().get(0));
+    assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
   }
 
   @Test
@@ -200,7 +201,7 @@ public class ScaniiClientTest {
     assertNotNull(actualResult.getContentType());
     assertNotNull(actualResult.getHostId());
     assertNotNull(actualResult.getFindings());
-    assertEquals("av.eicar-test-signature", actualResult.getFindings().get(0));
+    assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
   }
 
   @Test
@@ -267,5 +268,14 @@ public class ScaniiClientTest {
   public void shouldHandleLargeFiles() throws IOException {
     Path f = Systems.randomFile(104857600);
     client.process(f);
+  }
+
+  @Test
+  public void shouldPingAllRegions() {
+    for (ScaniiTarget target : ScaniiTarget.values()) {
+      System.out.println(target);
+      ScaniiClient client = new ScaniiClient(target, KEY, SECRET);
+      Assert.assertTrue(client.ping());
+    }
   }
 }

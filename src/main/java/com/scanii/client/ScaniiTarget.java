@@ -12,7 +12,8 @@ public enum ScaniiTarget {
   v2_1,
   v2_1_US1,
   v2_1_EU1,
-  LOCAL;
+  v2_0_AP1,
+  v2_1_AP1;
 
   public static ScaniiTarget latest() {
     return ScaniiTarget.v2_1;

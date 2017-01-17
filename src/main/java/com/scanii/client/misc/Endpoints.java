@@ -10,12 +10,13 @@ public class Endpoints {
 
   static {
     mapping.put(ScaniiTarget.v2_0, "https://api.scanii.com/v2.0");
+    mapping.put(ScaniiTarget.v2_1, "https://api.scanii.com/v2.1");
     mapping.put(ScaniiTarget.v2_0_EU1, "https://api-eu1.scanii.com/v2.0");
     mapping.put(ScaniiTarget.v2_0_US1, "https://api-us1.scanii.com/v2.0");
+    mapping.put(ScaniiTarget.v2_0_AP1, "https://api-ap1.scanii.com/v2.0");
     mapping.put(ScaniiTarget.v2_1_US1, "https://api-us1.scanii.com/v2.1");
     mapping.put(ScaniiTarget.v2_1_EU1, "https://api-eu1.scanii.com/v2.1");
-    mapping.put(ScaniiTarget.v2_1, "https://api.scanii.com/v2.1");
-    mapping.put(ScaniiTarget.LOCAL, "http://localhost:8081/v2.1");
+    mapping.put(ScaniiTarget.v2_1_AP1, "https://api-ap1.scanii.com/v2.1");
   }
 
   public static String resolve(ScaniiTarget version) {
