@@ -10,6 +10,7 @@ import com.scanii.client.batch.ScaniiResultHandler;
 import com.scanii.client.misc.Endpoints;
 import humanize.Humanize;
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -21,11 +22,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ScaniiCLI {
+public class ScaniiCli {
   public static void main(String[] args) throws IOException, ArgumentParserException, InterruptedException {
     ArgumentParser parser = ArgumentParsers.newArgumentParser("scanii-cli")
       .defaultHelp(true)
+      .version("${prog} " + ScaniiClient.VERSION)
       .description("Scanii.com command line interface");
+
+    parser.addArgument("--version").action(Arguments.version());
 
     parser.addArgument("-c", "--credentials")
       .help("api credentials to use in the KEY:SECRET format")

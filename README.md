@@ -9,13 +9,13 @@
 <dependency>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>2.11</version>
+  <version>${latest.release.version}</version>
 </dependency>
 ```
 #### Installing using gradle:
 
 ```
-compile group: 'com.uvasoftware', name: 'scanii-java', version: '2.11'
+compile group: 'com.uvasoftware', name: 'scanii-java', version: '${latest.release.version}'
 ```
 
 ### Basic usage:

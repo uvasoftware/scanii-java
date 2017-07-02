@@ -1,0 +1,13 @@
+sudo: false
+dist: trusty
+language: java
+
+cache:
+  directories:
+  - $HOME/.m2
+
+jdk:
+  - openjdk8
+  - openjdk7
+
+script: mvn clean install

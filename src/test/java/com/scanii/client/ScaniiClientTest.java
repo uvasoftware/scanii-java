@@ -3,7 +3,7 @@ package com.scanii.client;
 import com.google.common.collect.ImmutableMap;
 import com.scanii.client.misc.EICAR;
 import com.scanii.client.misc.Systems;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -108,7 +108,7 @@ public class ScaniiClientTest {
     assertNotNull(result.getRequestId());
     assertNull(result.getContentType());
     assertNotNull(result.getHostId());
-    assertNull(result.getFindings());
+    assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
@@ -155,7 +155,7 @@ public class ScaniiClientTest {
     assertNotNull(result.getRequestId());
     assertNull(result.getContentType());
     assertNotNull(result.getHostId());
-    assertNull(result.getFindings());
+    assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
@@ -186,7 +186,7 @@ public class ScaniiClientTest {
     assertNotNull(result.getRequestId());
     assertNull(result.getContentType());
     assertNotNull(result.getHostId());
-    assertNull(result.getFindings());
+    assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
@@ -229,10 +229,8 @@ public class ScaniiClientTest {
     assertNotNull(result.getExpirationDate());
     assertNotNull(result.getCreationDate());
 
-    Thread.sleep(1000);
-
     // now using the auth token to create a new client and process content
-    ScaniiClient tempClient = new ScaniiClient(ScaniiTarget.latest(), result.getResourceId(), null);
+    ScaniiClient tempClient = new ScaniiClient(ScaniiTarget.latest(), result.getResourceId());
     result = tempClient.process(Systems.randomFile(1024));
     assertNotNull(result.getResourceId());
     assertNotNull(result.getChecksum());
@@ -244,7 +242,6 @@ public class ScaniiClientTest {
     assertNotNull(result.getFindings());
     assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
-
 
   }
 
