@@ -3,6 +3,7 @@ package com.scanii.client;
 /**
  * Unchecked exception wrapper.
  */
+@SuppressWarnings("WeakerAccess")
 public class ScaniiException extends RuntimeException {
   public ScaniiException(String message, Throwable cause) {
     super(message, cause);

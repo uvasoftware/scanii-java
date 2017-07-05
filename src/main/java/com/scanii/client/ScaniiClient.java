@@ -11,7 +11,8 @@ import com.scanii.client.misc.Loggers;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,14 +21,26 @@ import java.util.concurrent.TimeUnit;
  *
  * @see <a href="http://docs.scanii.com/v2.1/resources.html">http://docs.scanii.com/v2.1/resources.html</a>
  */
+@SuppressWarnings("WeakerAccess")
 public class ScaniiClient {
+  public static final String VERSION;
   private static final Logger LOG = Loggers.build();
+
+  static {
+    if (ScaniiClient.class.getPackage().getImplementationVersion() != null) {
+      VERSION = ScaniiClient.class.getPackage().getImplementationVersion();
+    } else {
+      VERSION = "0.0-dev";
+    }
+
+  }
 
   private final ScaniiTarget target;
   private final String key;
   private final String secret;
   private final int DEFAULT_CONNECTION_TIMEOUT = 30000;
   private final int DEFAULT_READ_TIMEOUT = 60000;
+  private String userAgent;
 
   /**
    * Creates a new Scanii Client
@@ -37,14 +50,35 @@ public class ScaniiClient {
    * @param secret your API secret
    */
   public ScaniiClient(ScaniiTarget target, String key, String secret) {
+    Preconditions.checkNotNull(key, "please pass a non-null key");
+    Preconditions.checkNotNull(secret, "please pass a non-null secret");
+
     this.target = target;
     this.key = key;
-
-    // it's better to use null then an empty secret:
-    if (secret != null && secret.length() == 0) {
-      secret = null;
-    }
     this.secret = secret;
+
+    initialize();
+  }
+
+  /**
+   * Creates a new Scanii Client from a authentication token
+   *
+   * @param target the API version and location target @see ScaniiTarget
+   * @param token  your authentication token
+   */
+  public ScaniiClient(ScaniiTarget target, String token) {
+    Preconditions.checkNotNull(token, "token must not be null");
+
+    this.target = target;
+    this.key = token;
+    this.secret = null;
+
+    initialize();
+  }
+
+  private void initialize() {
+    this.userAgent = HttpHeaders.UA + "/v" + VERSION;
+    LOG.debug("client version: {} user agent: {}", VERSION, userAgent);
   }
 
   /**
@@ -60,7 +94,7 @@ public class ScaniiClient {
 
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files"))
-        .userAgent(HttpHeaders.UA)
+        .userAgent(userAgent)
         .basic(key, secret)
         .part("file", content.toFile())
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
@@ -104,7 +138,7 @@ public class ScaniiClient {
 
     try {
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/async"))
-        .userAgent(HttpHeaders.UA)
+        .userAgent(userAgent)
         .basic(key, secret)
         .part("file", content.toFile())
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
@@ -144,7 +178,7 @@ public class ScaniiClient {
   public ScaniiResult retrieve(String id) {
     try {
       HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "files/" + id))
-        .userAgent(HttpHeaders.UA)
+        .userAgent(userAgent)
         .basic(key, secret)
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -196,7 +230,7 @@ public class ScaniiClient {
     try {
 
       HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/fetch"))
-        .userAgent(HttpHeaders.UA)
+        .userAgent(userAgent)
         .basic(key, secret)
         .form("location", location)
         .form("callback", callback)
@@ -227,7 +261,7 @@ public class ScaniiClient {
     try {
 
       HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "ping"))
-        .userAgent(HttpHeaders.UA)
+        .userAgent(userAgent)
         .basic(key, secret)
         .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
         .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -253,7 +287,7 @@ public class ScaniiClient {
    */
   public ScaniiResult createAuthToken(int timeout, TimeUnit timeoutUnit) {
     HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "auth/tokens"))
-      .userAgent(HttpHeaders.UA)
+      .userAgent(userAgent)
       .basic(key, secret)
       .form("timeout", timeoutUnit.toSeconds(timeout))
       .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
@@ -271,11 +305,10 @@ public class ScaniiClient {
    * Deletes a previously created authentication token
    *
    * @param id the id of the token to be deleted
-   * @return true if the deletion succeed
    */
-  public boolean deleteAuthToken(String id) {
+  public void deleteAuthToken(String id) {
     HttpRequest r = HttpRequest.delete(Endpoints.resolve(target, "auth/tokens" + "/" + id))
-      .userAgent(HttpHeaders.UA)
+      .userAgent(userAgent)
       .basic(key, secret)
       .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
       .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -283,8 +316,6 @@ public class ScaniiClient {
     if (r.code() != 204) {
       throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
     }
-
-    return true;
 
   }
 
@@ -296,7 +327,7 @@ public class ScaniiClient {
    */
   public ScaniiResult retrieveAuthToken(String id) {
     HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "auth/tokens" + "/" + id))
-      .userAgent(HttpHeaders.UA)
+      .userAgent(userAgent)
       .basic(key, secret)
       .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
       .readTimeout(DEFAULT_READ_TIMEOUT);
@@ -326,12 +357,10 @@ public class ScaniiClient {
         result.setContentLength(js.get("content_length").asLong());
         result.setChecksum(js.get("checksum").asText());
 
-        List<String> findings = new ArrayList<String>();
-        Iterator<JsonNode> iter = js.get("findings").elements();
-        while (iter.hasNext()) {
-          findings.add(iter.next().asText());
+        Iterator<JsonNode> iterator = js.get("findings").elements();
+        while (iterator.hasNext()) {
+          result.getFindings().add(iterator.next().asText());
         }
-        result.setFindings(Collections.unmodifiableList(findings));
 
       }
 
@@ -366,5 +395,4 @@ public class ScaniiClient {
   private String metadataKey(String key) {
     return String.format("metadata[%s]", key);
   }
-
 }

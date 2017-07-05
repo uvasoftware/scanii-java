@@ -1,5 +1,6 @@
 package com.scanii.client;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -9,6 +10,7 @@ import java.util.Map;
 /**
  * Generic API response object
  */
+@SuppressWarnings("WeakerAccess")
 @NotThreadSafe
 public class ScaniiResult {
   private String rawResponse;
@@ -18,7 +20,7 @@ public class ScaniiResult {
   private String resourceLocation;
   private String requestId;
   private String hostId;
-  private List<String> findings = null;
+  private List<String> findings = Lists.newArrayList();
   private String checksum;
   private String message;
   private String expirationDate;
@@ -83,10 +85,6 @@ public class ScaniiResult {
 
   public List<String> getFindings() {
     return findings;
-  }
-
-  public void setFindings(List<String> findings) {
-    this.findings = findings;
   }
 
   @Override
