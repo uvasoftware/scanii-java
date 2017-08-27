@@ -11,10 +11,3 @@ jdk:
   - openjdk7
 
 script: mvn -B clean install
-
-deploy:
-  provider: script
-  script: "./travis/deploy.sh"
-  skip_cleanup: true
-  on:
-    branch: master
