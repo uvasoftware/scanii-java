@@ -31,7 +31,7 @@ compile group: 'com.uvasoftware', name: 'scanii-java', version: '${latest.releas
 
 Please note that you will need a valid scanii.com account and API Credentials. 
 
-More advanced usage examples can be found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/com/scanii/client/ScaniiClientTest.java)
+More advanced usage examples can be found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/java/com/scanii/client/ScaniiClientTest.java)
 
 General documentation on scanii can be found [here](http://docs.scanii.com)
 
