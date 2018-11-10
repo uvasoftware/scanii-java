@@ -9,10 +9,5 @@ source ./.circleci/mvn-install.sh
 
 cd ~/ci
 
-# building
-mvn -q -DskipTests clean package
-
-ls -lha target/*
-
 # Maven Release:
-mvn --settings ./.circleci/settings.xml release:clean release:prepare release:perform -B || exit 1
+mvn --settings ./.circleci/settings.xml -q -DskipTests release:clean release:prepare release:perform -B || exit 1
