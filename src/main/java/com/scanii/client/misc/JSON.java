@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,9 @@ public class JSON {
 
   static {
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.setDateFormat(new ISO8601DateFormat());
+    // crazy enough, this is the right way to configure jackson to serialize date/times as ISO8601
+    // see https://github.com/FasterXML/jackson-databind/issues/1786
+    mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
   }
 
