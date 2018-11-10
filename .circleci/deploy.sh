@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "installing dependencies"
-apt-get install -qqy openjdk-8-jdk-headless wget
+apt-get install -qqy openjdk-8-jdk-headless wget gpg
 update-ca-certificates -f &>/dev/null
 
 # maven
@@ -15,4 +15,4 @@ git config --global user.email "circleci@uvasoftware.com"
 git config --global user.name "CircleCI"
 
 # Maven Release:
-mvn --settings ./.circleci/settings.xml release:prepare -DskipTests  release:perform -B || exit 1
+mvn -DskipTests  --settings ./.circleci/settings.xml release:prepare  release:perform -B || exit 1
