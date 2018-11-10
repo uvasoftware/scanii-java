@@ -1,0 +1,24 @@
+<settings>
+  <servers>
+    <server>
+      <id>ossrh</id>
+      <username>${MAVEN_USER}</username>
+      <password>${MAVEN_PASSWORD}</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>release-sign-artifacts</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.keyname>ping@uvasoftware.com</gpg.keyname>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
