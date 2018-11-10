@@ -42,6 +42,11 @@ jobs:
     - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
     - checkout
 
+    - restore_cache:
+      keys:
+      - m2-{{ checksum "pom.xml" }}
+      - m2-
+
     - attach_workspace:
         at: ~/ci
 

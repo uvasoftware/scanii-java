@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ScaniiBatchClient {
   private static final Logger LOG = Loggers.build();
-  private static final int MAX_CONCURRENT_REQUESTS = 10 * Runtime.getRuntime().availableProcessors();
+  private static final int MAX_CONCURRENT_REQUESTS = 32;
   private final Semaphore semaphore;
 
   private final ExecutorService workers;
