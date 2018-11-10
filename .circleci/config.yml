@@ -43,9 +43,9 @@ jobs:
     - checkout
 
     - restore_cache:
-      keys:
-      - m2-{{ checksum "pom.xml" }}
-      - m2-
+        keys:
+        - m2-{{ checksum "pom.xml" }}
+        - m2-
 
     - attach_workspace:
         at: ~/ci
