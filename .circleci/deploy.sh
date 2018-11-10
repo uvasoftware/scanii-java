@@ -9,5 +9,10 @@ source ./.circleci/mvn-install.sh
 
 cd ~/ci
 
+
+# tag repo
+git config --global user.email "circleci@uvasoftware.com"
+git config --global user.name "CircleCI"
+
 # Maven Release:
-mvn --settings ./.circleci/settings.xml -q -DskipTests release:clean release:prepare release:perform -B || exit 1
+mvn --settings ./.circleci/settings.xml -DskipTests release:clean release:prepare release:perform -B || exit 1
