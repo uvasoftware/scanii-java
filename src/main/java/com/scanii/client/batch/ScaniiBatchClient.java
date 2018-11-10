@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,7 +34,7 @@ public class ScaniiBatchClient {
   public ScaniiBatchClient(ScaniiClient client, int maxConcurrentRequests) {
     this.client = client;
     semaphore = new Semaphore(maxConcurrentRequests);
-    workers =  new ForkJoinPool(maxConcurrentRequests);
+    workers = new ForkJoinPool(maxConcurrentRequests);
     LOG.info("batch client created with {} max concurrent requests", maxConcurrentRequests);
   }
 

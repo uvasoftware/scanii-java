@@ -16,8 +16,14 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class ScaniiClientTest {
-  private static final String KEY = System.getenv("TEST_KEY");
-  private static final String SECRET = System.getenv("TEST_SECRET");
+  private static final String KEY;
+  private static final String SECRET;
+
+  static {
+    KEY = System.getenv("SCANII_CREDS").split(":")[0];
+    SECRET = System.getenv("SCANII_CREDS").split(":")[1];
+  }
+
   private final Path eicarFile;
   private ScaniiClient client;
 
@@ -57,7 +63,7 @@ public class ScaniiClientTest {
     assertNotNull(result.getContentType());
     assertNotNull(result.getHostId());
     assertNotNull(result.getFindings());
-    assertTrue(result.getFindings().size() == 1);
+    assertEquals(1, result.getFindings().size());
     assertEquals("content.malicious.eicar-test-signature", result.getFindings().get(0));
     System.out.println(result);
 
@@ -178,7 +184,7 @@ public class ScaniiClientTest {
 
     ScaniiResult result;
     // simple processing clean
-    result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com");
+    result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "https://httpbin.org/post");
     assertNotNull(result.getResourceId());
     assertNull(result.getChecksum());
     assertNotNull(result.getResourceLocation());
@@ -209,16 +215,27 @@ public class ScaniiClientTest {
 
     ScaniiResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", ImmutableMap.of("foo", "bar"));
     assertNotNull(result.getResourceId());
-    Thread.sleep(1000);
 
-    // fetching result:
-    ScaniiResult actualResult = client.retrieve(result.getResourceId());
+    ScaniiResult actualResult = null;
+
+    for (int i = 0; i < 10; i++) {
+      Thread.sleep(1000);
+      // fetching result:
+      try {
+        System.out.println("attempting to load result " + result.getResourceId());
+        actualResult = client.retrieve(result.getResourceId());
+      } catch (ScaniiException ignored) {
+      }
+    }
+    assertNotNull(actualResult);
     assertEquals("bar", actualResult.getMetadata().get("foo"));
     System.out.println(result);
+
+
   }
 
   @Test
-  public void testPing() throws Exception {
+  public void testPing() {
     assertTrue(client.ping());
   }
 
@@ -246,13 +263,13 @@ public class ScaniiClientTest {
   }
 
   @Test
-  public void testDeleteAuthToken() throws Exception {
+  public void testDeleteAuthToken() {
     ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
     client.deleteAuthToken(result.getResourceId());
   }
 
   @Test
-  public void testRetrieveAuthToken() throws Exception {
+  public void testRetrieveAuthToken() {
     ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
     ScaniiResult result2 = client.retrieveAuthToken(result.getResourceId());
     assertEquals(result.getResourceId(), result2.getResourceId());
