@@ -22,7 +22,7 @@ public class ScaniiBatchClientTest {
     ScaniiBatchClient batchClient = new ScaniiBatchClient(new ScaniiClient(ScaniiTarget.latest(), KEY, SECRET));
     final AtomicInteger results = new AtomicInteger();
 
-    int count = 20;
+    int count = 100;
     for (int i = 0; i < count; i++) {
       batchClient.submit(Systems.randomFile(1024), new ScaniiResultHandler() {
         @Override
