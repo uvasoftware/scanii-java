@@ -18,7 +18,7 @@ mvn -q -DskipTests clean package
 ls -lha target/*
 
 # Maven Release:
-mvn --settings ./.circleci/settings.xml -DskipTests deploy  || exit 99
+mvn --settings ./.circleci/settings.xml -DskipTests clean package gpg:sign deploy  || exit 99
 
 # tagging release:
 VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')

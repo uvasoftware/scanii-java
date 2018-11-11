@@ -51,6 +51,10 @@ jobs:
         at: ~/ci
 
     - run:
+        name: Importing GPG key
+        command: echo $GPG_KEY | base64 --decode | gpg --import
+
+    - run:
         name: Deploying
         command: bash ./.circleci/deploy.sh
 
