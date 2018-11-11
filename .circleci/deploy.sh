@@ -12,10 +12,9 @@ cd ~/ci
 # removing snapshot marker:
 mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
 
-# building
-mvn -q -DskipTests clean package
-
-ls -lha target/*
+# PGP key import
+echo ${GPG_KEY} | base64 --decode &> /tmp/pgp-subkey
+gpg --import /tmp/pgp-subkey
 
 # Maven Release:
 mvn --settings ./.circleci/settings.xml -DskipTests clean package gpg:sign deploy  || exit 99
