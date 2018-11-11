@@ -9,10 +9,38 @@ source ./.circleci/mvn-install.sh
 
 cd ~/ci
 
+# removing snapshot marker:
+mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
+
+# building
+mvn -q -DskipTests clean package
+
+ls -lha target/*
+
+# Maven Release:
+mvn --settings ./.circleci/settings.xml -DskipTests deploy  || exit 99
+
+# tagging release:
+VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
+
+echo "###################  using version: v$VERSION ###################"
 
 # tag repo
 git config --global user.email "circleci@uvasoftware.com"
 git config --global user.name "CircleCI"
+git tag -a v${VERSION} -m "Release by CircleCI v${VERSION}"
+git push origin v${VERSION}
 
-# Maven Release:
-mvn -DskipTests  --settings ./.circleci/settings.xml release:prepare  release:perform -B || exit 1
+# bumping it to a new snapshot release:
+mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit
+
+VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
+
+echo "next version is: $VERSION"
+
+#commit version change
+git status
+git commit -a -m "bump to ${VERSION} [ci skip]"
+git push origin master
+
+
