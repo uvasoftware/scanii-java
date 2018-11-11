@@ -39,7 +39,7 @@ jobs:
     - image: debian:stretch
 
     steps:
-    - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
+    - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip gpg
     - checkout
 
     - restore_cache:
