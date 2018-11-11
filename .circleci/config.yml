@@ -52,7 +52,7 @@ jobs:
 
     - run:
         name: Importing GPG key
-        command: echo $GPG_KEY | base64 -i --decode | gpg --import
+        command: echo $GPG_KEY | base64 --decode || true  | gpg --import
 
     - run:
         name: Deploying
