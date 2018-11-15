@@ -1,198 +1,55 @@
 package com.scanii.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.kevinsawicki.http.HttpRequest;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.scanii.client.misc.Endpoints;
-import com.scanii.client.misc.HttpHeaders;
-import com.scanii.client.misc.JSON;
-import com.scanii.client.misc.Loggers;
-import org.slf4j.Logger;
+import com.scanii.client.models.ScaniiAuthToken;
+import com.scanii.client.models.ScaniiPendingResult;
+import com.scanii.client.models.ScaniiProcessingResult;
 
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Thread safe client to the Scanii content processing service.
- * Please note that this client does not throw checked exceptions, all exceptions are wrapped around a ScaniiException that extends RuntimeException
- *
- * @see <a href="http://docs.scanii.com/v2.1/resources.html">http://docs.scanii.com/v2.1/resources.html</a>
- */
-@SuppressWarnings("WeakerAccess")
-public class ScaniiClient {
-  public static final String VERSION;
-  private static final Logger LOG = Loggers.build();
-
-  static {
-    if (ScaniiClient.class.getPackage().getImplementationVersion() != null) {
-      VERSION = ScaniiClient.class.getPackage().getImplementationVersion();
-    } else {
-      VERSION = "0.0-dev";
-    }
-
-  }
-
-  private final ScaniiTarget target;
-  private final String key;
-  private final String secret;
-  private final int DEFAULT_CONNECTION_TIMEOUT = 30000;
-  private final int DEFAULT_READ_TIMEOUT = 60000;
-  private String userAgent;
-
-  /**
-   * Creates a new Scanii Client
-   *
-   * @param target the API version and location target @see ScaniiTarget
-   * @param key    your API key
-   * @param secret your API secret
-   */
-  public ScaniiClient(ScaniiTarget target, String key, String secret) {
-    Preconditions.checkNotNull(key, "please pass a non-null key");
-    Preconditions.checkNotNull(secret, "please pass a non-null secret");
-
-    this.target = target;
-    this.key = key;
-    this.secret = secret;
-
-    initialize();
-  }
-
-  /**
-   * Creates a new Scanii Client from a authentication token
-   *
-   * @param target the API version and location target @see ScaniiTarget
-   * @param token  your authentication token
-   */
-  public ScaniiClient(ScaniiTarget target, String token) {
-    Preconditions.checkNotNull(token, "token must not be null");
-
-    this.target = target;
-    this.key = token;
-    this.secret = null;
-
-    initialize();
-  }
-
-  private void initialize() {
-    this.userAgent = HttpHeaders.UA + "/v" + VERSION;
-    LOG.debug("client version: {} user agent: {}", VERSION, userAgent);
-  }
+public interface ScaniiClient {
 
   /**
    * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content  path to the file to be processed
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiResult
+   * @return scanii result @see ScaniiProcessingResult
    */
-  public ScaniiResult process(Path content, Map<String, String> metadata) {
-    Preconditions.checkNotNull(content);
-    Preconditions.checkNotNull(metadata);
-
-    try {
-      HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files"))
-        .userAgent(userAgent)
-        .basic(key, secret)
-        .part("file", content.toFile())
-        .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-        .readTimeout(DEFAULT_READ_TIMEOUT);
-
-      for (Map.Entry<String, String> e : metadata.entrySet()) {
-        r.part(metadataKey(e.getKey()), e.getValue());
-      }
-
-      if (r.code() != 201) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-      }
-
-      return processResponse(r);
-
-    } catch (Exception ex) {
-      throw new ScaniiException(ex);
-    }
-  }
-
-  /**
-   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
-   *
-   * @param content path to the file to be processed
-   * @return scanii result @see ScaniiResult
-   */
-  public ScaniiResult process(Path content) {
-    return process(content, ImmutableMap.<String, String>of());
-  }
+  ScaniiProcessingResult process(Path content, Map<String, String> metadata);
 
   /**
    * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content  path to the file to be processed
-   * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiResult
+   * @return scanii result @see ScaniiProcessingResult
    */
-  public ScaniiResult processAsync(Path content, Map<String, String> metadata) {
-    Preconditions.checkNotNull(content);
-    Preconditions.checkNotNull(metadata);
-
-    try {
-      HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/async"))
-        .userAgent(userAgent)
-        .basic(key, secret)
-        .part("file", content.toFile())
-        .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-        .readTimeout(DEFAULT_READ_TIMEOUT);
-
-      for (Map.Entry<String, String> e : metadata.entrySet()) {
-        r.part(metadataKey(e.getKey()), e.getValue());
-      }
-
-      if (r.code() != 202) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-      }
-
-      return processResponse(r);
-
-    } catch (Exception ex) {
-      throw new ScaniiException(ex);
-    }
-  }
+  ScaniiProcessingResult process(Path content);
 
   /**
-   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
-   *
+   * Submits a file to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    * @param content path to the file to be processed
-   * @return scanii result @see ScaniiResult
+   * @param metadata optional metadata to be added to this file
+   * @return processing result @see ScaniiPendingResult
    */
-  public ScaniiResult processAsync(Path content) {
-    return processAsync(content, ImmutableMap.<String, String>of());
-  }
+  ScaniiPendingResult processAsync(Path content, Map<String, String> metadata);
+
+  /**
+   * Submits a file to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   * @param content path to the file to be processed
+   * @return processing result @see ScaniiPendingResult
+   */
+  ScaniiPendingResult processAsync(Path content);
 
   /**
    * Fetches the results of a previously processed file @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param id id of the content/file to be retrieved
-   * @return scanii result @see ScaniiResult
+   * @return optional  @see ScaniiProcessingResult
    */
-  public ScaniiResult retrieve(String id) {
-    try {
-      HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "files/" + id))
-        .userAgent(userAgent)
-        .basic(key, secret)
-        .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-        .readTimeout(DEFAULT_READ_TIMEOUT);
-
-      if (r.code() != 200) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-      }
-
-      return processResponse(r);
-
-    } catch (Exception ex) {
-      throw new ScaniiException(ex);
-    }
-  }
+  Optional<ScaniiProcessingResult> retrieve(String id);
 
   /**
    * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
@@ -200,9 +57,7 @@ public class ScaniiClient {
    * @param location location (URL) of the content to be processed
    * @return scanii result @see ScaniiResult
    */
-  public ScaniiResult fetch(String location) {
-    return fetch(location, null, ImmutableMap.<String, String>of());
-  }
+  ScaniiProcessingResult fetch(String location);
 
   /**
    * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
@@ -211,9 +66,7 @@ public class ScaniiClient {
    * @param callback location (URL) to be notified and receive the result
    * @return scanii result @see ScaniiResult
    */
-  public ScaniiResult fetch(String location, String callback) {
-    return fetch(location, callback, ImmutableMap.<String, String>of());
-  }
+  ScaniiProcessingResult fetch(String location, String callback);
 
   /**
    * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
@@ -223,176 +76,36 @@ public class ScaniiClient {
    * @param metadata optional metadata to be added to this file
    * @return scanii result @see ScaniiResult
    */
-  public ScaniiResult fetch(String location, String callback, Map<String, String> metadata) {
-    Preconditions.checkNotNull(location);
-    Preconditions.checkNotNull(metadata);
-
-    try {
-
-      HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "files/fetch"))
-        .userAgent(userAgent)
-        .basic(key, secret)
-        .form("location", location)
-        .form("callback", callback)
-        .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-        .readTimeout(DEFAULT_READ_TIMEOUT);
-
-      for (Map.Entry<String, String> e : metadata.entrySet()) {
-        r.form(metadataKey(e.getKey()), e.getValue());
-      }
-
-      if (r.code() != 202) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-      }
-
-      return processResponse(r);
-
-    } catch (Exception ex) {
-      throw new ScaniiException(ex);
-    }
-  }
+  ScaniiProcessingResult fetch(String location, String callback, Map<String, String> metadata);
 
   /**
    * Pings the scanii service using the credentials provided @see <a href="http://docs.scanii.com/v2.1/resources.html#ping">http://docs.scanii.com/v2.1/resources.html#ping</a>
    *
    * @return true if we saw a pong back from scanii
    */
-  public boolean ping() {
-    try {
-
-      HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "ping"))
-        .userAgent(userAgent)
-        .basic(key, secret)
-        .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-        .readTimeout(DEFAULT_READ_TIMEOUT);
-
-      if (r.code() != 200) {
-        throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-      }
-
-      return true;
-
-    } catch (Exception ex) {
-      throw new ScaniiException(ex);
-    }
-  }
-
+  boolean ping();
 
   /**
    * Creates a new temporary authentication token @see <a href="http://docs.scanii.com/v2.1/resources.html#auth-tokens">http://docs.scanii.com/v2.1/resources.html#auth-tokens</a>
    *
    * @param timeout     how long the token should be valid for"
    * @param timeoutUnit unit use to calculate the timeout
-   * @return scanii result @see ScaniiResult
+   * @return the new auth token
    */
-  public ScaniiResult createAuthToken(int timeout, TimeUnit timeoutUnit) {
-    HttpRequest r = HttpRequest.post(Endpoints.resolve(target, "auth/tokens"))
-      .userAgent(userAgent)
-      .basic(key, secret)
-      .form("timeout", timeoutUnit.toSeconds(timeout))
-      .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-      .readTimeout(DEFAULT_READ_TIMEOUT);
-
-    if (r.code() != 201) {
-      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-    }
-
-    return processResponse(r);
-
-  }
+  ScaniiAuthToken createAuthToken(int timeout, TimeUnit timeoutUnit);
 
   /**
-   * Deletes a previously created authentication token
+   * Deletes a pre existing auth token
    *
    * @param id the id of the token to be deleted
    */
-  public void deleteAuthToken(String id) {
-    HttpRequest r = HttpRequest.delete(Endpoints.resolve(target, "auth/tokens" + "/" + id))
-      .userAgent(userAgent)
-      .basic(key, secret)
-      .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-      .readTimeout(DEFAULT_READ_TIMEOUT);
-
-    if (r.code() != 204) {
-      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-    }
-
-  }
+  void deleteAuthToken(String id);
 
   /**
    * Retrieves a previously created auth token
    *
    * @param id the id of the token to be retrieved
-   * @return scanii result @see ScaniiResult
+   * @return scanii result @see ScaniiAuthToken
    */
-  public ScaniiResult retrieveAuthToken(String id) {
-    HttpRequest r = HttpRequest.get(Endpoints.resolve(target, "auth/tokens" + "/" + id))
-      .userAgent(userAgent)
-      .basic(key, secret)
-      .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
-      .readTimeout(DEFAULT_READ_TIMEOUT);
-
-    if (r.code() != 200) {
-      throw new ScaniiException(String.format("Invalid HTTP response from service, code: %s message: %s", r.code(), r.body()));
-    }
-
-    return processResponse(r);
-
-  }
-
-  private ScaniiResult processResponse(HttpRequest response) {
-    try {
-      ScaniiResult result = new ScaniiResult();
-
-      result.setResourceLocation(response.header(HttpHeaders.LOCATION));
-      result.setRequestId(response.header(HttpHeaders.X_REQUEST_HEADER));
-      result.setHostId(response.header(HttpHeaders.X_HOST_HEADER));
-
-      JsonNode js = JSON.load(response.body());
-      result.setRawResponse(js.toString());
-      result.setResourceId(js.get("id").asText());
-
-      if (js.has("findings")) {
-        result.setContentType(js.get("content_type").asText());
-        result.setContentLength(js.get("content_length").asLong());
-        result.setChecksum(js.get("checksum").asText());
-
-        Iterator<JsonNode> iterator = js.get("findings").elements();
-        while (iterator.hasNext()) {
-          result.getFindings().add(iterator.next().asText());
-        }
-
-      }
-
-      if (js.has("message")) {
-        result.setMessage(js.get("message").asText());
-      }
-
-      if (js.has("expiration_date")) {
-        result.setExpirationDate(js.get("expiration_date").asText());
-      }
-      if (js.has("creation_date")) {
-        result.setCreationDate(js.get("creation_date").asText());
-      }
-      if (js.has("metadata")) {
-        Iterator<Map.Entry<String, JsonNode>> iter = js.get("metadata").fields();
-        while (iter.hasNext()) {
-          Map.Entry<String, JsonNode> entry = iter.next();
-
-          LOG.debug("processing metadata k: {} v: {}", entry.getKey(), entry.getValue().asText());
-          result.getMetadata().put(entry.getKey(), entry.getValue().asText());
-        }
-
-      }
-
-      return result;
-
-    } catch (Exception ex) {
-      throw new ScaniiException("Invalid response from service " + ex.getMessage(), ex);
-    }
-  }
-
-  private String metadataKey(String key) {
-    return String.format("metadata[%s]", key);
-  }
+  ScaniiAuthToken retrieveAuthToken(String id);
 }

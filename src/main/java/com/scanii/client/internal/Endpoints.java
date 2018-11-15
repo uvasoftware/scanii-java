@@ -1,4 +1,4 @@
-package com.scanii.client.misc;
+package com.scanii.client.internal;
 
 import com.scanii.client.ScaniiTarget;
 

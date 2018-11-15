@@ -1,4 +1,4 @@
-package com.scanii.client.misc;
+package com.scanii.client.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

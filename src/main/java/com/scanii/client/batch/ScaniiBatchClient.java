@@ -2,8 +2,8 @@ package com.scanii.client.batch;
 
 import com.scanii.client.ScaniiClient;
 import com.scanii.client.ScaniiException;
-import com.scanii.client.ScaniiResult;
-import com.scanii.client.misc.Loggers;
+import com.scanii.client.internal.Loggers;
+import com.scanii.client.models.ScaniiProcessingResult;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -12,13 +12,14 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 /**
  * High performance batch client for concurrently processing lots of files
  */
 public class ScaniiBatchClient {
   private static final Logger LOG = Loggers.build();
-  private static final int MAX_CONCURRENT_REQUESTS = 32;
+  private static final int MAX_CONCURRENT_REQUESTS = 8 * Runtime.getRuntime().availableProcessors();
   private final Semaphore semaphore;
 
   private final ExecutorService workers;
@@ -44,23 +45,20 @@ public class ScaniiBatchClient {
    * @param content Path to the content to be processed
    * @param handler Method to be called once processing is completed and a result is at hand
    */
-  public void submit(final Path content, final ScaniiResultHandler handler) {
+  public void submit(final Path content, final Consumer<ScaniiProcessingResult> handler) {
     try {
       semaphore.acquire();
       pending.incrementAndGet();
-      workers.execute(new Runnable() {
-        @Override
-        public void run() {
-          String originalThreadName = Thread.currentThread().getName();
-          Thread.currentThread().setName(String.format("ScaniiBatchWorker[%s]", content.getFileName()));
-          try {
-            ScaniiResult result = client.process(content);
-            completed.incrementAndGet();
-            handler.handle(result);
-          } finally {
-            Thread.currentThread().setName(originalThreadName);
-            pending.decrementAndGet();
-          }
+      workers.execute(() -> {
+        String originalThreadName = Thread.currentThread().getName();
+        Thread.currentThread().setName(String.format("ScaniiBatchWorker[%s]", content.getFileName()));
+        try {
+          ScaniiProcessingResult result = client.process(content);
+          completed.incrementAndGet();
+          handler.accept(result);
+        } finally {
+          Thread.currentThread().setName(originalThreadName);
+          pending.decrementAndGet();
         }
       });
     } catch (Exception ex) {
@@ -81,5 +79,9 @@ public class ScaniiBatchClient {
 
   public long getFailedCount() {
     return failed.get();
+  }
+
+  public ScaniiClient getClient() {
+    return client;
   }
 }

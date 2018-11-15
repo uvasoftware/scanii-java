@@ -1,21 +1,24 @@
 package com.scanii.client;
 
 import com.google.common.collect.ImmutableMap;
-import com.scanii.client.misc.EICAR;
+import com.scanii.client.internal.EICAR;
 import com.scanii.client.misc.Systems;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.scanii.client.models.ScaniiAuthToken;
+import com.scanii.client.models.ScaniiPendingResult;
+import com.scanii.client.models.ScaniiProcessingResult;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
-
-public class ScaniiClientTest {
+class ScaniiClientTest {
   private static final String KEY;
   private static final String SECRET;
 
@@ -27,44 +30,45 @@ public class ScaniiClientTest {
   private final Path eicarFile;
   private ScaniiClient client;
 
-  public ScaniiClientTest() throws IOException {
+  ScaniiClientTest() throws IOException {
     this.eicarFile = Files.write(Files.createTempFile(null, null), EICAR.SIGNATURE.getBytes());
   }
 
-  @Before
-  public void before() {
-    client = new ScaniiClient(ScaniiTarget.latest(), KEY, SECRET);
+  @BeforeEach
+  void before() {
+    client = ScaniiClients.createDefault(ScaniiTarget.latest(), KEY, SECRET);
   }
 
-  @Test
-  public void testProcess() throws Exception {
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testProcess() throws Exception {
 
-    ScaniiResult result;
+    ScaniiProcessingResult result;
     // simple processing clean
     result = client.process(Systems.randomFile(1024));
-    assertNotNull(result.getResourceId());
-    assertNotNull(result.getChecksum());
-    assertNotNull(result.getResourceLocation());
-    assertNotNull(result.getRawResponse());
-    assertNotNull(result.getRequestId());
-    assertNotNull(result.getContentType());
-    assertNotNull(result.getHostId());
-    assertNotNull(result.getFindings());
-    assertTrue(result.getFindings().isEmpty());
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertNotNull(result.getChecksum());
+    Assertions.assertNotNull(result.getResourceLocation());
+    Assertions.assertNotNull(result.getRawResponse());
+    Assertions.assertNotNull(result.getRequestId());
+    Assertions.assertNotNull(result.getContentType());
+    Assertions.assertNotNull(result.getHostId());
+    Assertions.assertNotNull(result.getFindings());
+    Assertions.assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     // with findings
     result = client.process(eicarFile);
-    assertNotNull(result.getResourceId());
-    assertNotNull(result.getChecksum());
-    assertNotNull(result.getResourceLocation());
-    assertNotNull(result.getRawResponse());
-    assertNotNull(result.getRequestId());
-    assertNotNull(result.getContentType());
-    assertNotNull(result.getHostId());
-    assertNotNull(result.getFindings());
-    assertEquals(1, result.getFindings().size());
-    assertEquals("content.malicious.eicar-test-signature", result.getFindings().get(0));
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertNotNull(result.getChecksum());
+    Assertions.assertNotNull(result.getResourceLocation());
+    Assertions.assertNotNull(result.getRawResponse());
+    Assertions.assertNotNull(result.getRequestId());
+    Assertions.assertNotNull(result.getContentType());
+    Assertions.assertNotNull(result.getHostId());
+    Assertions.assertNotNull(result.getFindings());
+    Assertions.assertEquals(1, result.getFindings().size());
+    Assertions.assertEquals("content.malicious.eicar-test-signature", result.getFindings().get(0));
     System.out.println(result);
 
     // failures:
@@ -72,224 +76,224 @@ public class ScaniiClientTest {
   }
 
   @Test
-  public void testProcessWithMetadata() throws Exception {
+  void testProcessWithMetadata() throws Exception {
 
-    ScaniiResult result;
+    ScaniiProcessingResult result;
 
     // simple processing clean
     result = client.process(Systems.randomFile(1024), ImmutableMap.of("foo", "bar"));
-    assertNotNull(result.getResourceId());
-    assertEquals("bar", result.getMetadata().get("foo"));
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertEquals("bar", result.getMetadata().get("foo"));
     System.out.println(result);
   }
 
 
-  @Test(expected = ScaniiException.class)
-  public void shouldThrowErrorsIfInvalidPost() throws IOException {
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void shouldThrowErrorsIfInvalidPost() {
+    // empty file:
+    Assertions.assertThrows(ScaniiException.class, () -> {
+      client.process(Files.createTempFile(null, null));
+    });
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void shouldThrowErrorsIfInvalidCredentials() {
+    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.v2_0, "foo", "bar");
 
     // empty file:
-    client.process(Files.createTempFile(null, null));
+    Assertions.assertThrows(ScaniiException.class, () -> {
+      client.process(Files.createTempFile(null, null));
+    });
 
   }
 
-  @Test(expected = ScaniiException.class)
-  public void shouldThrowErrorsIfInvalidCredentials() throws IOException {
-    ScaniiClient client = new ScaniiClient(ScaniiTarget.v2_0, "foo", "bar");
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testProcessAsync() throws Exception {
 
-    // empty file:
-    client.process(Files.createTempFile(null, null));
-
-  }
-
-  @Test
-  public void testProcessAsync() throws Exception {
-
-    ScaniiResult result;
-    // simple processing clean
-    result = client.processAsync(Systems.randomFile(1024));
-    assertNotNull(result.getResourceId());
-    assertNull(result.getChecksum());
-    assertNotNull(result.getResourceLocation());
-    assertNotNull(result.getRawResponse());
-    assertNotNull(result.getRequestId());
-    assertNull(result.getContentType());
-    assertNotNull(result.getHostId());
-    assertTrue(result.getFindings().isEmpty());
+    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024));
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertNotNull(result.getResourceLocation());
+    Assertions.assertNotNull(result.getRawResponse());
+    Assertions.assertNotNull(result.getRequestId());
+    Assertions.assertNotNull(result.getHostId());
     System.out.println(result);
 
     Thread.sleep(1000);
 
     // now fetching the retrieve
-    ScaniiResult actualResult = client.retrieve(result.getResourceId());
-    assertNotNull(actualResult.getResourceId());
-    assertNotNull(actualResult.getChecksum());
-    assertNull(actualResult.getResourceLocation());
-    assertNotNull(actualResult.getRawResponse());
-    assertNotNull(actualResult.getRequestId());
-    assertNotNull(actualResult.getContentType());
-    assertNotNull(actualResult.getHostId());
-    assertNotNull(actualResult.getFindings());
-    assertTrue(actualResult.getFindings().isEmpty());
+    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    Assertions.assertNotNull(actualResult.getResourceId());
+    Assertions.assertNotNull(actualResult.getChecksum());
+    Assertions.assertNull(actualResult.getResourceLocation());
+    Assertions.assertNotNull(actualResult.getRawResponse());
+    Assertions.assertNotNull(actualResult.getRequestId());
+    Assertions.assertNotNull(actualResult.getContentType());
+    Assertions.assertNotNull(actualResult.getHostId());
+    Assertions.assertNotNull(actualResult.getFindings());
+    Assertions.assertTrue(actualResult.getFindings().isEmpty());
 
   }
 
   @Test
-  public void testProcessAsyncWithMetadata() throws Exception {
-
-    ScaniiResult result;
-
-    // simple processing clean
-    result = client.processAsync(Systems.randomFile(1024), ImmutableMap.of("foo", "bar"));
+  void testProcessAsyncWithMetadata() throws Exception {
+    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), ImmutableMap.of("foo", "bar"));
     Thread.sleep(1000);
 
     // now fetching the retrieve
-    ScaniiResult actualResult = client.retrieve(result.getResourceId());
-    assertNotNull(actualResult.getResourceId());
-    assertEquals("bar", actualResult.getMetadata().get("foo"));
+    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    Assertions.assertNotNull(actualResult.getResourceId());
+    Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
 
-  @Test
-  public void testFetchWithoutCallback() throws InterruptedException {
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testFetchWithoutCallback() throws InterruptedException {
 
-    ScaniiResult result;
+    ScaniiProcessingResult result;
     // simple processing clean
     result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip");
-    assertNotNull(result.getResourceId());
-    assertNull(result.getChecksum());
-    assertNotNull(result.getResourceLocation());
-    assertNotNull(result.getRawResponse());
-    assertNotNull(result.getRequestId());
-    assertNull(result.getContentType());
-    assertNotNull(result.getHostId());
-    assertTrue(result.getFindings().isEmpty());
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertNull(result.getChecksum());
+    Assertions.assertNotNull(result.getResourceLocation());
+    Assertions.assertNotNull(result.getRawResponse());
+    Assertions.assertNotNull(result.getRequestId());
+    Assertions.assertNull(result.getContentType());
+    Assertions.assertNotNull(result.getHostId());
+    Assertions.assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
 
     // fetching result:
-    ScaniiResult actualResult = client.retrieve(result.getResourceId());
-    assertNotNull(actualResult.getResourceId());
-    assertNotNull(actualResult.getChecksum());
-    assertNull(actualResult.getResourceLocation());
-    assertNotNull(actualResult.getRawResponse());
-    assertNotNull(actualResult.getRequestId());
-    assertNotNull(actualResult.getContentType());
-    assertNotNull(actualResult.getHostId());
-    assertNotNull(actualResult.getFindings());
-    assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
+    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    Assertions.assertNotNull(actualResult.getResourceId());
+    Assertions.assertNotNull(actualResult.getChecksum());
+    Assertions.assertNull(actualResult.getResourceLocation());
+    Assertions.assertNotNull(actualResult.getRawResponse());
+    Assertions.assertNotNull(actualResult.getRequestId());
+    Assertions.assertNotNull(actualResult.getContentType());
+    Assertions.assertNotNull(actualResult.getHostId());
+    Assertions.assertNotNull(actualResult.getFindings());
+    Assertions.assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
   }
 
-  @Test
-  public void testFetchWithCallback() throws InterruptedException {
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testFetchWithCallback() throws InterruptedException {
 
-    ScaniiResult result;
+    ScaniiProcessingResult result;
     // simple processing clean
     result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "https://httpbin.org/post");
-    assertNotNull(result.getResourceId());
-    assertNull(result.getChecksum());
-    assertNotNull(result.getResourceLocation());
-    assertNotNull(result.getRawResponse());
-    assertNotNull(result.getRequestId());
-    assertNull(result.getContentType());
-    assertNotNull(result.getHostId());
-    assertTrue(result.getFindings().isEmpty());
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertNull(result.getChecksum());
+    Assertions.assertNotNull(result.getResourceLocation());
+    Assertions.assertNotNull(result.getRawResponse());
+    Assertions.assertNotNull(result.getRequestId());
+    Assertions.assertNull(result.getContentType());
+    Assertions.assertNotNull(result.getHostId());
+    Assertions.assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
 
     // fetching result:
-    ScaniiResult actualResult = client.retrieve(result.getResourceId());
-    assertNotNull(actualResult.getResourceId());
-    assertNotNull(actualResult.getChecksum());
-    assertNull(actualResult.getResourceLocation());
-    assertNotNull(actualResult.getRawResponse());
-    assertNotNull(actualResult.getRequestId());
-    assertNotNull(actualResult.getContentType());
-    assertNotNull(actualResult.getHostId());
-    assertNotNull(actualResult.getFindings());
-    assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
+    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    Assertions.assertNotNull(actualResult.getResourceId());
+    Assertions.assertNotNull(actualResult.getChecksum());
+    Assertions.assertNull(actualResult.getResourceLocation());
+    Assertions.assertNotNull(actualResult.getRawResponse());
+    Assertions.assertNotNull(actualResult.getRequestId());
+    Assertions.assertNotNull(actualResult.getContentType());
+    Assertions.assertNotNull(actualResult.getHostId());
+    Assertions.assertNotNull(actualResult.getFindings());
+    Assertions.assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
   }
 
   @Test
-  public void testFetchWithMetadata() throws Exception {
+  void testFetchWithMetadata() throws Exception {
 
-    ScaniiResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", ImmutableMap.of("foo", "bar"));
-    assertNotNull(result.getResourceId());
+    ScaniiProcessingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", ImmutableMap.of("foo", "bar"));
+    Assertions.assertNotNull(result.getResourceId());
 
-    ScaniiResult actualResult = null;
+    ScaniiProcessingResult actualResult = null;
 
     for (int i = 0; i < 10; i++) {
       Thread.sleep(1000);
       // fetching result:
       try {
         System.out.println("attempting to load result " + result.getResourceId());
-        actualResult = client.retrieve(result.getResourceId());
+        Optional<ScaniiProcessingResult> actualResultOptional = client.retrieve(result.getResourceId());
+        if (actualResultOptional.isPresent()) {
+          actualResult = actualResultOptional.get();
+          break;
+        }
       } catch (ScaniiException ignored) {
       }
     }
-    assertNotNull(actualResult);
-    assertEquals("bar", actualResult.getMetadata().get("foo"));
+    Assertions.assertNotNull(actualResult);
+    Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
     System.out.println(result);
 
 
   }
 
-  @Test
-  public void testPing() {
-    assertTrue(client.ping());
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testPing() {
+    Assertions.assertTrue(client.ping());
   }
 
-  @Test
-  public void testCreateAuthToken() throws Exception {
-    ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
-    assertNotNull(result.getResourceId());
-    assertNotNull(result.getExpirationDate());
-    assertNotNull(result.getCreationDate());
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testCreateAuthToken() throws Exception {
+    ScaniiAuthToken result = client.createAuthToken(1, TimeUnit.HOURS);
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertNotNull(result.getExpirationDate());
+    Assertions.assertNotNull(result.getCreationDate());
 
     // now using the auth token to create a new client and process content
-    ScaniiClient tempClient = new ScaniiClient(ScaniiTarget.latest(), result.getResourceId());
-    result = tempClient.process(Systems.randomFile(1024));
-    assertNotNull(result.getResourceId());
-    assertNotNull(result.getChecksum());
-    assertNotNull(result.getResourceLocation());
-    assertNotNull(result.getRawResponse());
-    assertNotNull(result.getRequestId());
-    assertNotNull(result.getContentType());
-    assertNotNull(result.getHostId());
-    assertNotNull(result.getFindings());
-    assertTrue(result.getFindings().isEmpty());
-    System.out.println(result);
+    ScaniiClient tempClient = ScaniiClients.createDefault(ScaniiTarget.latest(), result.getResourceId());
+    ScaniiProcessingResult processingResult = tempClient.process(Systems.randomFile(1024));
+    Assertions.assertNotNull(processingResult.getResourceId());
+    Assertions.assertNotNull(processingResult.getChecksum());
+    Assertions.assertNotNull(processingResult.getResourceLocation());
+    Assertions.assertNotNull(processingResult.getRawResponse());
+    Assertions.assertNotNull(processingResult.getRequestId());
+    Assertions.assertNotNull(processingResult.getContentType());
+    Assertions.assertNotNull(processingResult.getHostId());
+    Assertions.assertNotNull(processingResult.getFindings());
+    Assertions.assertTrue(processingResult.getFindings().isEmpty());
+    System.out.println(processingResult);
 
   }
 
-  @Test
-  public void testDeleteAuthToken() {
-    ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testDeleteAuthToken() {
+    ScaniiAuthToken result = client.createAuthToken(1, TimeUnit.HOURS);
     client.deleteAuthToken(result.getResourceId());
   }
 
-  @Test
-  public void testRetrieveAuthToken() {
-    ScaniiResult result = client.createAuthToken(1, TimeUnit.HOURS);
-    ScaniiResult result2 = client.retrieveAuthToken(result.getResourceId());
-    assertEquals(result.getResourceId(), result2.getResourceId());
-    assertEquals(result.getCreationDate(), result2.getCreationDate());
-    assertEquals(result.getExpirationDate(), result2.getExpirationDate());
+  @ParameterizedTest
+  @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
+  void testRetrieveAuthToken() {
+    ScaniiAuthToken result = client.createAuthToken(1, TimeUnit.HOURS);
+    ScaniiAuthToken result2 = client.retrieveAuthToken(result.getResourceId());
+    Assertions.assertEquals(result.getResourceId(), result2.getResourceId());
+    Assertions.assertEquals(result.getCreationDate(), result2.getCreationDate());
+    Assertions.assertEquals(result.getExpirationDate(), result2.getExpirationDate());
   }
 
-  @Test
-  @Ignore("slow test")
-  public void shouldHandleLargeFiles() throws IOException {
-    Path f = Systems.randomFile(104857600);
-    client.process(f);
-  }
 
   @Test
-  public void shouldPingAllRegions() {
+  void shouldPingAllRegions() {
     for (ScaniiTarget target : ScaniiTarget.values()) {
       System.out.println(target);
-      ScaniiClient client = new ScaniiClient(target, KEY, SECRET);
-      Assert.assertTrue(client.ping());
+      ScaniiClient client = ScaniiClients.createDefault(target, KEY, SECRET);
+      Assertions.assertTrue(client.ping());
     }
   }
 }

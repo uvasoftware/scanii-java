@@ -9,11 +9,11 @@ public class ScaniiException extends RuntimeException {
     super(message, cause);
   }
 
-  public ScaniiException(String message) {
-    super(message);
-  }
-
   public ScaniiException(Throwable cause) {
     super(cause);
+  }
+
+  public ScaniiException(int code, String error) {
+    super(String.format("Error: %s with HTTP code: %d", error, code));
   }
 }
