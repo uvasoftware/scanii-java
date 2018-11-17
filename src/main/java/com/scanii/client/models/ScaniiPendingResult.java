@@ -13,4 +13,11 @@ public class ScaniiPendingResult extends ScaniiResult {
   public void setResourceId(String resourceId) {
     this.resourceId = resourceId;
   }
+
+  @Override
+  public String toString() {
+    return "ScaniiPendingResult{" +
+      "resourceId='" + resourceId + '\'' +
+      '}';
+  }
 }

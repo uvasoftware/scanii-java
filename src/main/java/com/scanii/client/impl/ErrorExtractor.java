@@ -12,19 +12,19 @@ class ErrorExtractor {
 
   ErrorExtractor() {
 
-    Function<String, String> extractv21 = (response) -> JSON.load(response).get("error").asText();
-    Function<String, String> extractv20 = (response) -> JSON.load(response).get("message").asText();
+    Function<String, String> extractV21 = (response) -> JSON.load(response).get("error").asText();
+    Function<String, String> extractV20 = (response) -> JSON.load(response).get("message").asText();
 
-    extractors.put(ScaniiTarget.v2_1, extractv21);
-    extractors.put(ScaniiTarget.v2_1_AP1, extractv21);
-    extractors.put(ScaniiTarget.v2_1_US1, extractv21);
-    extractors.put(ScaniiTarget.v2_1_EU1, extractv21);
+    extractors.put(ScaniiTarget.v2_1, extractV21);
+    extractors.put(ScaniiTarget.v2_1_AP1, extractV21);
+    extractors.put(ScaniiTarget.v2_1_US1, extractV21);
+    extractors.put(ScaniiTarget.v2_1_EU1, extractV21);
 
 
-    extractors.put(ScaniiTarget.v2_0, extractv20);
-    extractors.put(ScaniiTarget.v2_0_AP1, extractv20);
-    extractors.put(ScaniiTarget.v2_0_US1, extractv20);
-    extractors.put(ScaniiTarget.v2_0_EU1, extractv20);
+    extractors.put(ScaniiTarget.v2_0, extractV20);
+    extractors.put(ScaniiTarget.v2_0_AP1, extractV20);
+    extractors.put(ScaniiTarget.v2_0_US1, extractV20);
+    extractors.put(ScaniiTarget.v2_0_EU1, extractV20);
 
   }
 

@@ -1,5 +1,6 @@
 package com.scanii.client;
 
+import com.scanii.client.models.ScaniiAccountInfo;
 import com.scanii.client.models.ScaniiAuthToken;
 import com.scanii.client.models.ScaniiPendingResult;
 import com.scanii.client.models.ScaniiProcessingResult;
@@ -108,4 +109,10 @@ public interface ScaniiClient {
    * @return scanii result @see ScaniiAuthToken
    */
   ScaniiAuthToken retrieveAuthToken(String id);
+
+  /**
+   * Retrieves account information @see <a href="https://docs.scanii.com/v2.1/resources.html#account">https://docs.scanii.com/v2.1/resources.html#account</a>
+   * @return your account information
+   */
+  ScaniiAccountInfo retrieveAccountInfo();
 }

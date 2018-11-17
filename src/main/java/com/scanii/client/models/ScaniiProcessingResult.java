@@ -24,9 +24,6 @@ public class ScaniiProcessingResult extends ScaniiResult {
   @JsonProperty("checksum")
   private String checksum;
 
-  @JsonProperty("message")
-  private String message;
-
   @JsonProperty("creation_date")
   private Instant creationDate;
 
@@ -73,14 +70,6 @@ public class ScaniiProcessingResult extends ScaniiResult {
     this.checksum = checksum;
   }
 
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
   public Instant getCreationDate() {
     return creationDate;
   }
@@ -101,8 +90,10 @@ public class ScaniiProcessingResult extends ScaniiResult {
   public String toString() {
     return "ScaniiProcessingResult{" +
       "resourceId='" + resourceId + '\'' +
+      ", contentType='" + contentType + '\'' +
+      ", contentLength=" + contentLength +
       ", findings=" + findings +
-      ", message='" + message + '\'' +
+      ", checksum='" + checksum + '\'' +
       ", metadata=" + metadata +
       '}';
   }

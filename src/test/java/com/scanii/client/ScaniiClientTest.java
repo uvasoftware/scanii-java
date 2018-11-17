@@ -1,8 +1,9 @@
 package com.scanii.client;
 
 import com.google.common.collect.ImmutableMap;
-import com.scanii.client.internal.EICAR;
+import com.scanii.client.misc.EICAR;
 import com.scanii.client.misc.Systems;
+import com.scanii.client.models.ScaniiAccountInfo;
 import com.scanii.client.models.ScaniiAuthToken;
 import com.scanii.client.models.ScaniiPendingResult;
 import com.scanii.client.models.ScaniiProcessingResult;
@@ -295,5 +296,17 @@ class ScaniiClientTest {
       ScaniiClient client = ScaniiClients.createDefault(target, KEY, SECRET);
       Assertions.assertTrue(client.ping());
     }
+  }
+
+  @Test
+  void shouldRetrieveAccountInfo() {
+    ScaniiAccountInfo account = client.retrieveAccountInfo();
+    Assertions.assertNotNull(account.getName());
+    Assertions.assertTrue(account.getBalance() > 0);
+    Assertions.assertTrue(account.getStartingBalance() > 0);
+    Assertions.assertNotNull(account.getCreationDate());
+    Assertions.assertNotNull(account.getModificationDate());
+    Assertions.assertTrue(account.getUsers().size() > 0);
+    Assertions.assertTrue(account.getKeys().size() > 0);
   }
 }
