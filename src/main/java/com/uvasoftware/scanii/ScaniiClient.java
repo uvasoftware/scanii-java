@@ -58,7 +58,7 @@ public interface ScaniiClient {
    * @param location location (URL) of the content to be processed
    * @return scanii result @see ScaniiResult
    */
-  ScaniiProcessingResult fetch(String location);
+  ScaniiPendingResult fetch(String location);
 
   /**
    * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
@@ -67,7 +67,7 @@ public interface ScaniiClient {
    * @param callback location (URL) to be notified and receive the result
    * @return scanii result @see ScaniiResult
    */
-  ScaniiProcessingResult fetch(String location, String callback);
+  ScaniiPendingResult fetch(String location, String callback);
 
   /**
    * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
@@ -77,7 +77,7 @@ public interface ScaniiClient {
    * @param metadata optional metadata to be added to this file
    * @return scanii result @see ScaniiResult
    */
-  ScaniiProcessingResult fetch(String location, String callback, Map<String, String> metadata);
+  ScaniiPendingResult fetch(String location, String callback, Map<String, String> metadata);
 
   /**
    * Pings the scanii service using the credentials provided @see <a href="http://docs.scanii.com/v2.1/resources.html#ping">http://docs.scanii.com/v2.1/resources.html#ping</a>
