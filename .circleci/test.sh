@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-update-ca-certificates -f &>/dev/null
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 
 # maven
 source ./.circleci/mvn-install.sh
