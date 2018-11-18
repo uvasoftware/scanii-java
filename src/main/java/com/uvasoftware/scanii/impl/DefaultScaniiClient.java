@@ -4,13 +4,13 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.uvasoftware.scanii.ScaniiClient;
+import com.uvasoftware.scanii.ScaniiClients;
 import com.uvasoftware.scanii.ScaniiException;
 import com.uvasoftware.scanii.ScaniiTarget;
 import com.uvasoftware.scanii.internal.Endpoints;
 import com.uvasoftware.scanii.internal.HttpHeaders;
 import com.uvasoftware.scanii.internal.JSON;
 import com.uvasoftware.scanii.internal.Loggers;
-import com.uvasoftware.scanii.ScaniiClients;
 import com.uvasoftware.scanii.models.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -180,17 +180,17 @@ public class DefaultScaniiClient implements ScaniiClient {
   }
 
   @Override
-  public ScaniiProcessingResult fetch(String location) {
+  public ScaniiPendingResult fetch(String location) {
     return fetch(location, null, ImmutableMap.of());
   }
 
   @Override
-  public ScaniiProcessingResult fetch(String location, String callback) {
+  public ScaniiPendingResult fetch(String location, String callback) {
     return fetch(location, callback, ImmutableMap.of());
   }
 
   @Override
-  public ScaniiProcessingResult fetch(String location, String callback, Map<String, String> metadata) {
+  public ScaniiPendingResult fetch(String location, String callback, Map<String, String> metadata) {
     Preconditions.checkNotNull(location, "content location cannot be null");
     Preconditions.checkNotNull(metadata, "metadata cannot be null");
 
@@ -221,7 +221,7 @@ public class DefaultScaniiClient implements ScaniiClient {
           parseAndThrowError(response, responseEntity);
         }
 
-        ScaniiProcessingResult result = JSON.load(responseEntity, ScaniiProcessingResult.class);
+        ScaniiPendingResult result = JSON.load(responseEntity, ScaniiPendingResult.class);
 
         extractRequestMetadata(result, response);
         result.setRawResponse(responseEntity);

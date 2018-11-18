@@ -153,17 +153,13 @@ class ScaniiClientTest {
   @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
   void testFetchWithoutCallback() throws InterruptedException {
 
-    ScaniiProcessingResult result;
     // simple processing clean
-    result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip");
+    ScaniiPendingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip");
     Assertions.assertNotNull(result.getResourceId());
-    Assertions.assertNull(result.getChecksum());
     Assertions.assertNotNull(result.getResourceLocation());
     Assertions.assertNotNull(result.getRawResponse());
     Assertions.assertNotNull(result.getRequestId());
-    Assertions.assertNull(result.getContentType());
     Assertions.assertNotNull(result.getHostId());
-    Assertions.assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
@@ -185,17 +181,13 @@ class ScaniiClientTest {
   @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
   void testFetchWithCallback() throws InterruptedException {
 
-    ScaniiProcessingResult result;
     // simple processing clean
-    result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "https://httpbin.org/post");
+    ScaniiPendingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "https://httpbin.org/post");
     Assertions.assertNotNull(result.getResourceId());
-    Assertions.assertNull(result.getChecksum());
     Assertions.assertNotNull(result.getResourceLocation());
     Assertions.assertNotNull(result.getRawResponse());
     Assertions.assertNotNull(result.getRequestId());
-    Assertions.assertNull(result.getContentType());
     Assertions.assertNotNull(result.getHostId());
-    Assertions.assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
     Thread.sleep(1000);
@@ -216,7 +208,7 @@ class ScaniiClientTest {
   @Test
   void testFetchWithMetadata() throws Exception {
 
-    ScaniiProcessingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", ImmutableMap.of("foo", "bar"));
+    ScaniiPendingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", ImmutableMap.of("foo", "bar"));
     Assertions.assertNotNull(result.getResourceId());
 
     ScaniiProcessingResult actualResult = null;
