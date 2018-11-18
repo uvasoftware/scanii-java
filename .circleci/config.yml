@@ -3,7 +3,7 @@ jobs:
   jdk8:
     working_directory: ~/ci
     docker:
-    - image: debian:stretch
+    - image: debian:buster
 
     steps:
     - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
@@ -39,7 +39,7 @@ jobs:
   jdk11:
     working_directory: ~/ci
     docker:
-    - image: debian:stretch-backports
+    - image: debian:buster
 
     steps:
     - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
