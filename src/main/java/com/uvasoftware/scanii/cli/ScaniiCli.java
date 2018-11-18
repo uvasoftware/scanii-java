@@ -1,13 +1,12 @@
-package com.scanii.client.cli;
+package com.uvasoftware.scanii.cli;
 
 
-import com.scanii.client.ScaniiClient;
-import com.scanii.client.ScaniiException;
-import com.scanii.client.ScaniiResult;
-import com.scanii.client.ScaniiTarget;
-import com.scanii.client.batch.ScaniiBatchClient;
-import com.scanii.client.batch.ScaniiResultHandler;
-import com.scanii.client.misc.Endpoints;
+import com.uvasoftware.scanii.ScaniiClient;
+import com.uvasoftware.scanii.ScaniiClients;
+import com.uvasoftware.scanii.ScaniiException;
+import com.uvasoftware.scanii.ScaniiTarget;
+import com.uvasoftware.scanii.batch.ScaniiBatchClient;
+import com.uvasoftware.scanii.internal.Endpoints;
 import humanize.Humanize;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -23,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ScaniiCli {
-  public static void main(String[] args) throws IOException, ArgumentParserException, InterruptedException {
+  public static void main(String[] args) throws IOException, InterruptedException {
     ArgumentParser parser = ArgumentParsers.newArgumentParser("scanii-cli")
       .defaultHelp(true)
-      .version("${prog} " + ScaniiClient.VERSION)
+      .version("${prog} " + ScaniiClients.VERSION)
       .description("Scanii.com command line interface");
 
     parser.addArgument("--version").action(Arguments.version());
@@ -59,12 +58,16 @@ public class ScaniiCli {
     // endpoint:
     ScaniiTarget target = ScaniiTarget.latest();
 
-    if (ns.getString("endpoint").equals("us1")) {
-      target = ScaniiTarget.v2_1_US1;
-    } else if (ns.getString("endpoint").equals("eu1")) {
-      target = ScaniiTarget.v2_1_EU1;
-    } else if (ns.getString("endpoint").equals("ap1")) {
-      target = ScaniiTarget.v2_1_AP1;
+    switch (ns.getString("endpoint")) {
+      case "us1":
+        target = ScaniiTarget.v2_1_US1;
+        break;
+      case "eu1":
+        target = ScaniiTarget.v2_1_EU1;
+        break;
+      case "ap1":
+        target = ScaniiTarget.v2_1_AP1;
+        break;
     }
 
     // bootstrapping:
@@ -73,7 +76,7 @@ public class ScaniiCli {
     System.out.println("using key: " + KEY);
     System.out.print("verifying connectivity to scanii service...");
 
-    final ScaniiClient client = new ScaniiClient(target, KEY, SECRET);
+    final ScaniiClient client = ScaniiClients.createDefault(target, KEY, SECRET);
     try {
       client.ping();
     } catch (ScaniiException ex) {
@@ -110,17 +113,14 @@ public class ScaniiCli {
     for (String dir : paths) {
       Files.walkFileTree(Paths.get(dir), new SimpleFileVisitor<Path>() {
         @Override
-        public FileVisitResult visitFile(final Path path, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult visitFile(final Path path, BasicFileAttributes attrs) {
           if (!attrs.isDirectory()) {
-            bclient.submit(path, new ScaniiResultHandler() {
-              @Override
-              public void handle(ScaniiResult result) {
-                bytesProcessed.addAndGet(result.getContentLength());
-                long completed = bclient.getCompletedCount();
-                float total = totalFiles.get();
-                String percentage = Humanize.formatPercent(completed / total);
-                System.out.println(String.format("➝ %s | findings: %s completed: %s/%s (%s)", path.toAbsolutePath().toString(), result.getFindings(), Humanize.formatDecimal(completed), Humanize.formatDecimal(total), percentage));
-              }
+            bclient.submit(path, (result) -> {
+              bytesProcessed.addAndGet(result.getContentLength());
+              long completed = bclient.getCompletedCount();
+              float total = totalFiles.get();
+              String percentage = Humanize.formatPercent(completed / total);
+              System.out.println(String.format("➝ %s | findings: %s completed: %s/%s (%s)", path.toAbsolutePath().toString(), result.getFindings(), Humanize.formatDecimal(completed), Humanize.formatDecimal(total), percentage));
             });
           }
           return FileVisitResult.CONTINUE;

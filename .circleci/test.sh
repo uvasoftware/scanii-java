@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-echo "installing dependencies"
-apt-get install -qqy openjdk-8-jdk-headless wget
-update-ca-certificates -f &>/dev/null
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 
 # maven
 source ./.circleci/mvn-install.sh
 
 # running tests
 cd ~/ci
-mvn -q test
+mvn verify

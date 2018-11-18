@@ -1,4 +1,4 @@
-package com.scanii.client;
+package com.uvasoftware.scanii;
 
 /**
  * Scanii Resource targets so you can control which api version and endpoint you would like your client to utilize.

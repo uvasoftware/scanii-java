@@ -17,7 +17,7 @@ echo ${GPG_KEY} | base64 --decode &> /tmp/pgp-subkey
 gpg --import /tmp/pgp-subkey
 
 # Maven Release:
- mvn --settings .circleci/settings.xml -DskipTests -P release-sign-artifacts clean package deploy
+mvn --settings .circleci/settings.xml -DskipTests -P release-sign-artifacts clean package deploy
 
 # tagging release:
 VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')

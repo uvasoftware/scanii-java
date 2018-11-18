@@ -1,4 +1,4 @@
-package com.scanii.client.misc;
+package com.uvasoftware.scanii.misc;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+apt-get update -qq && apt-get install -qqy wget
+
 export MVN_DOWNLOAD="https://scanii-assets.s3.amazonaws.com/builds/maven/apache-maven-3.6.0-bin.tar.gz"
 
 echo "Downloading maven from: ${MVN_DOWNLOAD}"

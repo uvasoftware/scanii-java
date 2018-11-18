@@ -1,6 +1,6 @@
-package com.scanii.client.misc;
+package com.uvasoftware.scanii.internal;
 
-import com.scanii.client.ScaniiTarget;
+import com.uvasoftware.scanii.ScaniiTarget;
 
 import java.util.HashMap;
 import java.util.Map;
