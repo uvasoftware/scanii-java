@@ -22,23 +22,45 @@ public interface ScaniiClient {
   ScaniiProcessingResult process(Path content, Map<String, String> metadata);
 
   /**
-   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a> with optional callback.
    *
    * @param content  path to the file to be processed
+   * @param callback location (URL) to be notified and receive the result
+   * @param metadata optional metadata to be added to this file
+   * @return scanii result @see ScaniiProcessingResult
+   */
+  ScaniiProcessingResult process(Path content, String callback, Map<String, String> metadata);
+
+  /**
+   * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   *
+   * @param content path to the file to be processed
    * @return scanii result @see ScaniiProcessingResult
    */
   ScaniiProcessingResult process(Path content);
 
   /**
    * Submits a file to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
-   * @param content path to the file to be processed
+   *
+   * @param content  path to the file to be processed
    * @param metadata optional metadata to be added to this file
    * @return processing result @see ScaniiPendingResult
    */
   ScaniiPendingResult processAsync(Path content, Map<String, String> metadata);
 
   /**
+   * Submits a file to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a> with optional callback
+   *
+   * @param content  path to the file to be processed
+   * @param callback location (URL) to be notified and receive the result
+   * @param metadata optional metadata to be added to this file
+   * @return processing result @see ScaniiPendingResult
+   */
+  ScaniiPendingResult processAsync(Path content, String callback, Map<String, String> metadata);
+
+  /**
    * Submits a file to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
+   *
    * @param content path to the file to be processed
    * @return processing result @see ScaniiPendingResult
    */
@@ -112,6 +134,7 @@ public interface ScaniiClient {
 
   /**
    * Retrieves account information @see <a href="https://docs.scanii.com/v2.1/resources.html#account">https://docs.scanii.com/v2.1/resources.html#account</a>
+   *
    * @return your account information
    */
   ScaniiAccountInfo retrieveAccountInfo();

@@ -20,6 +20,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
@@ -64,21 +65,17 @@ public class DefaultScaniiClient implements ScaniiClient {
 
   @Override
   public ScaniiProcessingResult process(Path content, Map<String, String> metadata) {
+    return process(content, null, metadata);
+  }
+
+  @Override
+  public ScaniiProcessingResult process(Path content, String callback, Map<String, String> metadata) {
     Preconditions.checkNotNull(content, "content path cannot be null");
     Preconditions.checkNotNull(metadata, "metadata cannot be null");
     Preconditions.checkArgument(Files.exists(content), "content path does not exist");
 
     HttpPost req = new HttpPost(Endpoints.resolve(target, "files"));
-    addHeaders(req);
-
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
-      .addBinaryBody("file", content.toFile());
-
-    metadata.forEach((k, v) -> {
-      multipartEntityBuilder.addTextBody(String.format("metadata[%s]", k), v);
-    });
-
-    req.setEntity(multipartEntityBuilder.build());
+    buildMultiPart(content, callback, metadata, req);
 
     try {
       return httpClient.execute(req, response -> {
@@ -108,21 +105,17 @@ public class DefaultScaniiClient implements ScaniiClient {
 
   @Override
   public ScaniiPendingResult processAsync(Path content, Map<String, String> metadata) {
+    return processAsync(content, null, metadata);
+  }
+
+  @Override
+  public ScaniiPendingResult processAsync(Path content, String callback, Map<String, String> metadata) {
     Preconditions.checkNotNull(content, "content path cannot be null");
     Preconditions.checkNotNull(metadata, "metadata cannot be null");
     Preconditions.checkArgument(Files.exists(content), "content path does not exist");
 
     HttpPost req = new HttpPost(Endpoints.resolve(target, "files/async"));
-    addHeaders(req);
-
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
-      .addBinaryBody("file", content.toFile());
-
-    metadata.forEach((k, v) -> {
-      multipartEntityBuilder.addTextBody(String.format("metadata[%s]", k), v);
-    });
-
-    req.setEntity(multipartEntityBuilder.build());
+    buildMultiPart(content, callback, metadata, req);
 
     try {
 
@@ -143,6 +136,24 @@ public class DefaultScaniiClient implements ScaniiClient {
     } catch (IOException e) {
       throw new ScaniiException(e);
     }
+  }
+
+  private void buildMultiPart(Path content, String callback, Map<String, String> metadata, HttpPost req) {
+    addHeaders(req);
+
+    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
+      .addBinaryBody("file", content.toFile());
+
+    metadata.forEach((k, v) -> {
+      multipartEntityBuilder.addTextBody(String.format("metadata[%s]", k), v);
+    });
+
+    if (callback != null) {
+      multipartEntityBuilder.addTextBody("callback", callback, ContentType.TEXT_PLAIN);
+    }
+
+
+    req.setEntity(multipartEntityBuilder.build());
   }
 
   @Override
