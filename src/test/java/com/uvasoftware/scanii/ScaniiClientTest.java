@@ -88,6 +88,17 @@ class ScaniiClientTest {
     System.out.println(result);
   }
 
+  @Test
+  void testProcessWithMetadataAndCallback() throws Exception {
+    ScaniiProcessingResult result;
+
+    // simple processing clean
+    result = client.process(Systems.randomFile(1024), "https://httpbin.org/post", ImmutableMap.of("foo", "bar"));
+    Assertions.assertNotNull(result.getResourceId());
+    Assertions.assertEquals("bar", result.getMetadata().get("foo"));
+    System.out.println(result);
+  }
+
 
   @ParameterizedTest
   @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
@@ -141,6 +152,17 @@ class ScaniiClientTest {
   @Test
   void testProcessAsyncWithMetadata() throws Exception {
     ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), ImmutableMap.of("foo", "bar"));
+    Thread.sleep(1000);
+
+    // now fetching the retrieve
+    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    Assertions.assertNotNull(actualResult.getResourceId());
+    Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
+  }
+
+  @Test
+  void testProcessAsyncWithMetadataAndCallback() throws Exception {
+    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), "https://httpbin.org/post", ImmutableMap.of("foo", "bar"));
     Thread.sleep(1000);
 
     // now fetching the retrieve
