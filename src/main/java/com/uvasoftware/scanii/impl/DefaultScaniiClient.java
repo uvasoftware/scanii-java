@@ -28,6 +28,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -67,6 +68,11 @@ public class DefaultScaniiClient implements ScaniiClient {
   public ScaniiProcessingResult process(Path content, Map<String, String> metadata) {
     return process(content, null, metadata);
   }
+  
+  @Override
+  public ScaniiProcessingResult process(InputStream content, Map<String, String> metadata) {
+    return process(content, null, metadata);
+  }  
 
   @Override
   public ScaniiProcessingResult process(Path content, String callback, Map<String, String> metadata) {
@@ -97,16 +103,56 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new ScaniiException(e);
     }
   }
+  
+  
+  @Override
+  public ScaniiProcessingResult process(InputStream content, String callback, Map<String, String> metadata) {
+    Preconditions.checkNotNull(content, "content stream cannot be null");
+    Preconditions.checkNotNull(metadata, "metadata cannot be null");
+
+    HttpPost req = new HttpPost(Endpoints.resolve(target, "files"));
+    buildMultiPart(content, callback, metadata, req);
+
+    try {
+      return httpClient.execute(req, response -> {
+
+        String responseEntity = EntityUtils.toString(response.getEntity());
+
+        if (response.getStatusLine().getStatusCode() != 201) {
+          parseAndThrowError(response, responseEntity);
+        }
+
+        ScaniiProcessingResult result = JSON.load(responseEntity, ScaniiProcessingResult.class);
+        extractRequestMetadata(result, response);
+        result.setRawResponse(responseEntity);
+
+        return result;
+
+      });
+    } catch (IOException e) {
+      throw new ScaniiException(e);
+    }
+  }  
 
   @Override
   public ScaniiProcessingResult process(Path content) {
     return process(content, ImmutableMap.of());
   }
+  
+  @Override
+  public ScaniiProcessingResult process(InputStream content) {
+    return process(content, ImmutableMap.of());
+  }  
 
   @Override
   public ScaniiPendingResult processAsync(Path content, Map<String, String> metadata) {
     return processAsync(content, null, metadata);
   }
+  
+  @Override
+  public ScaniiPendingResult processAsync(InputStream content, Map<String, String> metadata) {
+    return processAsync(content, null, metadata);
+  }  
 
   @Override
   public ScaniiPendingResult processAsync(Path content, String callback, Map<String, String> metadata) {
@@ -137,6 +183,35 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new ScaniiException(e);
     }
   }
+  
+  @Override
+  public ScaniiPendingResult processAsync(InputStream content, String callback, Map<String, String> metadata) {
+    Preconditions.checkNotNull(content, "content stream cannot be null");
+    Preconditions.checkNotNull(metadata, "metadata cannot be null");
+
+    HttpPost req = new HttpPost(Endpoints.resolve(target, "files/async"));
+    buildMultiPart(content, callback, metadata, req);
+
+    try {
+
+      //noinspection Duplicates
+      return httpClient.execute(req, response -> {
+        String responseEntity = EntityUtils.toString(response.getEntity());
+
+        if (response.getStatusLine().getStatusCode() != 202) {
+          parseAndThrowError(response, responseEntity);
+        }
+
+        ScaniiPendingResult result = JSON.load(responseEntity, ScaniiPendingResult.class);
+        extractRequestMetadata(result, response);
+        result.setRawResponse(responseEntity);
+        return result;
+
+      });
+    } catch (IOException e) {
+      throw new ScaniiException(e);
+    }
+  }  
 
   private void buildMultiPart(Path content, String callback, Map<String, String> metadata, HttpPost req) {
     addHeaders(req);
@@ -155,11 +230,34 @@ public class DefaultScaniiClient implements ScaniiClient {
 
     req.setEntity(multipartEntityBuilder.build());
   }
+  
+  private void buildMultiPart(InputStream content, String callback, Map<String, String> metadata, HttpPost req) {
+	    addHeaders(req);
+
+	    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
+	      .addBinaryBody("file", content);
+
+	    metadata.forEach((k, v) -> {
+	      multipartEntityBuilder.addTextBody(String.format("metadata[%s]", k), v);
+	    });
+
+	    if (callback != null) {
+	      multipartEntityBuilder.addTextBody("callback", callback, ContentType.TEXT_PLAIN);
+	    }
+
+
+	    req.setEntity(multipartEntityBuilder.build());
+	  }  
 
   @Override
   public ScaniiPendingResult processAsync(Path content) {
     return processAsync(content, ImmutableMap.of());
   }
+  
+  @Override
+  public ScaniiPendingResult processAsync(InputStream content) {
+    return processAsync(content, ImmutableMap.of());
+  }  
 
   @Override
   public Optional<ScaniiProcessingResult> retrieve(String id) {
