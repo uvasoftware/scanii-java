@@ -3,7 +3,7 @@ jobs:
   jdk8:
     working_directory: ~/ci
     docker:
-    - image: debian:buster
+    - image: debian:9
 
     steps:
     - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
@@ -11,7 +11,7 @@ jobs:
 
     - run:
         name: Installing Java
-        command: apt-get install -qqy openjdk-8-jdk-headless
+        command: bash ./.circleci/install-java-8.sh
 
     - restore_cache:
         keys:
@@ -20,7 +20,7 @@ jobs:
 
     - run:
         name: Running tests
-        command: bash ./.circleci/test.sh
+        command: JAVA_HOME=/opt/jdk mvn verify
 
     - run:
         name: Save test results
@@ -39,7 +39,7 @@ jobs:
   jdk11:
     working_directory: ~/ci
     docker:
-    - image: debian:buster
+    - image: debian:9
 
     steps:
     - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
@@ -47,7 +47,7 @@ jobs:
 
     - run:
         name: Installing Java
-        command: apt-get install -qqy openjdk-11-jdk-headless
+        command: bash ./.circleci/install-java-11.sh
 
     - restore_cache:
         keys:
@@ -56,7 +56,7 @@ jobs:
 
     - run:
         name: Running tests
-        command: bash ./.circleci/test.sh
+        command: JAVA_HOME=/opt/jdk mvn verify
 
     - run:
         name: Save test results
@@ -77,7 +77,7 @@ jobs:
   deploy:
     working_directory: ~/ci
     docker:
-    - image: debian:buster
+    - image: debian:9
 
     steps:
     - run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
@@ -90,6 +90,10 @@ jobs:
 
     - attach_workspace:
         at: ~/ci
+
+    - run:
+        name: Installing Java
+        command: bash ./.circleci/install-java-11.sh
 
     - run:
         name: Deploying

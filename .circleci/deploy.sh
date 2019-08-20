@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
 
-echo "installing dependencies"
-apt-get install -qqy openjdk-8-jdk-headless wget gpg
-update-ca-certificates -f &>/dev/null
-
-# maven
-source ./.circleci/mvn-install.sh
-
-cd ~/ci
+cd ~/ci || exit
 
 # removing snapshot marker:
 mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
 
 # PGP key import
-echo ${GPG_KEY} | base64 --decode &> /tmp/pgp-subkey
+echo "${GPG_KEY}" | base64 --decode &>/tmp/pgp-subkey
 gpg --import /tmp/pgp-subkey
 
 # Maven Release:
@@ -27,8 +20,8 @@ echo "###################  using version: v$VERSION ###################"
 # tag repo
 git config --global user.email "circleci@uvasoftware.com"
 git config --global user.name "CircleCI"
-git tag -a v${VERSION} -m "Release by CircleCI v${VERSION}"
-git push origin v${VERSION}
+git tag -a v"${VERSION}" -m "Release by CircleCI v${VERSION}"
+git push origin v"${VERSION}"
 
 # bumping it to a new snapshot release:
 mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit
@@ -41,5 +34,3 @@ echo "next version is: $VERSION"
 git status
 git commit -a -m "bump to ${VERSION} [ci skip]"
 git push origin master
-
-
