@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-echo "installing dependencies"
-apt-get install -qqy openjdk-8-jdk-headless wget gpg
-update-ca-certificates -f &>/dev/null
-
-# maven
-source ./.circleci/mvn-install.sh
-
 cd ~/ci || exit
 
 # removing snapshot marker:

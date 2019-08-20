@@ -6,7 +6,7 @@ export MVN_DOWNLOAD="https://scanii-assets.s3.amazonaws.com/builds/maven/apache-
 
 echo "Downloading maven from: ${MVN_DOWNLOAD}"
 
-cd /tmp
+cd /tmp || exit
 wget ${MVN_DOWNLOAD}
 tar -zxvf apache-maven* &>/dev/null
 mv apache-maven-*/ /opt
