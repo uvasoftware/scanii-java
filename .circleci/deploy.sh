@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "installing dependencies"
+apt-get install -qqy gpg
 cd ~/ci || exit
 
 # removing snapshot marker:

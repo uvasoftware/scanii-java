@@ -88,12 +88,12 @@ class ScaniiClientTest {
     Assertions.assertEquals("bar", result.getMetadata().get("foo"));
     System.out.println(result);
   }
-  
+
   @Test
   void testProcessInputStreamWithMetadata() throws Exception {
 
     ScaniiProcessingResult result;
-    
+
     FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
 
     // simple processing clean
@@ -101,7 +101,7 @@ class ScaniiClientTest {
     Assertions.assertNotNull(result.getResourceId());
     Assertions.assertEquals("bar", result.getMetadata().get("foo"));
     System.out.println(result);
-  }  
+  }
 
   @Test
   void testProcessWithMetadataAndCallback() throws Exception {
@@ -113,20 +113,20 @@ class ScaniiClientTest {
     Assertions.assertEquals("bar", result.getMetadata().get("foo"));
     System.out.println(result);
   }
-  
-  
+
+
   @Test
   void testProcessInputStreamWithMetadataAndCallback() throws Exception {
     ScaniiProcessingResult result;
 
     FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
-    
+
     // simple processing clean
     result = client.process(is, "https://httpbin.org/post", ImmutableMap.of("foo", "bar"));
     Assertions.assertNotNull(result.getResourceId());
     Assertions.assertEquals("bar", result.getMetadata().get("foo"));
     System.out.println(result);
-  }  
+  }
 
 
   @ParameterizedTest
@@ -188,12 +188,12 @@ class ScaniiClientTest {
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
-  
+
   @Test
   void testProcessAsyncInputStreamWithMetadata() throws Exception {
-	  
-	FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
-	  
+
+    FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
+
     ScaniiPendingResult result = client.processAsync(is, ImmutableMap.of("foo", "bar"));
     Thread.sleep(1000);
 
@@ -213,12 +213,12 @@ class ScaniiClientTest {
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
-  
+
   @Test
   void testProcessAsyncInputStreamWithMetadataAndCallback() throws Exception {
-	  
-	FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
-	
+
+    FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
+
     ScaniiPendingResult result = client.processAsync(is, "https://httpbin.org/post", ImmutableMap.of("foo", "bar"));
     Thread.sleep(1000);
 
@@ -226,7 +226,7 @@ class ScaniiClientTest {
     ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
-  }  
+  }
 
   @ParameterizedTest
   @EnumSource(value = ScaniiTarget.class, names = {"v2_0", "v2_1"})
@@ -269,10 +269,20 @@ class ScaniiClientTest {
     Assertions.assertNotNull(result.getHostId());
     System.out.println(result);
 
-    Thread.sleep(1000);
-
     // fetching result:
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    ScaniiProcessingResult actualResult = null;
+    int i = 0;
+    while (i < 10) {
+      Optional<ScaniiProcessingResult> potentialResult = client.retrieve(result.getResourceId());
+      if (potentialResult.isPresent()) {
+        actualResult = potentialResult.get();
+        break;
+      }
+      Thread.sleep(500);
+      i++;
+    }
+
+    if (actualResult == null) throw new AssertionError();
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertNotNull(actualResult.getChecksum());
     Assertions.assertNull(actualResult.getResourceLocation());
