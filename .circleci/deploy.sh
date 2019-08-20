@@ -3,6 +3,7 @@
 cd ~/ci || exit
 
 # removing snapshot marker:
+export JAVA_HOME=/opt/jdk
 mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
 
 # PGP key import
