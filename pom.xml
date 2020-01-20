@@ -18,8 +18,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jackson.version>2.10.1</jackson.version>
-    <hc.version>4.5.6</hc.version>
+    <jackson.version>2.10.2</jackson.version>
+    <hc.version>4.5.10</hc.version>
     <junit.version>5.0.3</junit.version>
   </properties>
 
@@ -70,7 +70,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.3</version>
+            <version>1.6.8</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>

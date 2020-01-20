@@ -18,7 +18,7 @@ public interface ScaniiClient {
    *
    * @param content  path to the file to be processed
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */
   ScaniiProcessingResult process(Path content, Map<String, String> metadata);
   
@@ -27,7 +27,7 @@ public interface ScaniiClient {
    *
    * @param content  stream of the file to be processed
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */  
   ScaniiProcessingResult process(InputStream content, Map<String, String> metadata);  
 
@@ -37,7 +37,7 @@ public interface ScaniiClient {
    * @param content  path to the file to be processed
    * @param callback location (URL) to be notified and receive the result
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */
   ScaniiProcessingResult process(Path content, String callback, Map<String, String> metadata);
   
@@ -48,7 +48,7 @@ public interface ScaniiClient {
    * @param content  file content to be processed
    * @param callback location (URL) to be notified and receive the result
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */  
   ScaniiProcessingResult process(InputStream content, String callback, Map<String, String> metadata);  
 
@@ -56,7 +56,7 @@ public interface ScaniiClient {
    * Submits a file to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content path to the file to be processed
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */
   ScaniiProcessingResult process(Path content);
   
@@ -64,7 +64,7 @@ public interface ScaniiClient {
    * Submits a file stream to be processed @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content stream of the file to be processed
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */  
   ScaniiProcessingResult process(InputStream content);  
 
@@ -73,7 +73,7 @@ public interface ScaniiClient {
    *
    * @param content  path to the file to be processed
    * @param metadata optional metadata to be added to this file
-   * @return processing result @see ScaniiPendingResult
+   * @return processing result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult processAsync(Path content, Map<String, String> metadata);
 
@@ -82,7 +82,7 @@ public interface ScaniiClient {
    *
    * @param content  stream of the file to be processed
    * @param metadata optional metadata to be added to this file
-   * @return processing result @see ScaniiPendingResult
+   * @return processing result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult processAsync(InputStream content, Map<String, String> metadata);  
 
@@ -92,7 +92,7 @@ public interface ScaniiClient {
    * @param content  path to the file to be processed
    * @param callback location (URL) to be notified and receive the result
    * @param metadata optional metadata to be added to this file
-   * @return processing result @see ScaniiPendingResult
+   * @return processing result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult processAsync(Path content, String callback, Map<String, String> metadata);
   
@@ -102,7 +102,7 @@ public interface ScaniiClient {
    * @param content  file content to be processed
    * @param callback location (URL) to be notified and receive the result
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiProcessingResult
+   * @return scanii result {@link ScaniiProcessingResult}
    */  
   ScaniiPendingResult processAsync(InputStream content, String callback, Map<String, String> metadata);  
 
@@ -110,7 +110,7 @@ public interface ScaniiClient {
    * Submits a file to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content path to the file to be processed
-   * @return processing result @see ScaniiPendingResult
+   * @return processing result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult processAsync(Path content);
   
@@ -118,7 +118,7 @@ public interface ScaniiClient {
    * Submits a file content stream to be processed asynchronously @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param content stream of the file to be processed
-   * @return processing result @see ScaniiPendingResult
+   * @return processing result {@link ScaniiPendingResult}
    */  
   ScaniiPendingResult processAsync(InputStream content);
 
@@ -126,7 +126,7 @@ public interface ScaniiClient {
    * Fetches the results of a previously processed file @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param id id of the content/file to be retrieved
-   * @return optional  @see ScaniiProcessingResult
+   * @return optional  {@link ScaniiProcessingResult}
    */
   Optional<ScaniiProcessingResult> retrieve(String id);
 
@@ -134,7 +134,7 @@ public interface ScaniiClient {
    * Makes a fetch call to scanii @see <a href="http://docs.scanii.com/v2.1/resources.html#files">http://docs.scanii.com/v2.1/resources.html#files</a>
    *
    * @param location location (URL) of the content to be processed
-   * @return scanii result @see ScaniiResult
+   * @return scanii result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult fetch(String location);
 
@@ -143,7 +143,7 @@ public interface ScaniiClient {
    *
    * @param location location (URL) of the content to be processed
    * @param callback location (URL) to be notified and receive the result
-   * @return scanii result @see ScaniiResult
+   * @return scanii result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult fetch(String location, String callback);
 
@@ -153,7 +153,7 @@ public interface ScaniiClient {
    * @param location location (URL) of the content to be processed
    * @param callback location (URL) to be notified and receive the result
    * @param metadata optional metadata to be added to this file
-   * @return scanii result @see ScaniiResult
+   * @return scanii result {@link ScaniiPendingResult}
    */
   ScaniiPendingResult fetch(String location, String callback, Map<String, String> metadata);
 
@@ -168,13 +168,13 @@ public interface ScaniiClient {
    * Creates a new temporary authentication token @see <a href="http://docs.scanii.com/v2.1/resources.html#auth-tokens">http://docs.scanii.com/v2.1/resources.html#auth-tokens</a>
    *
    * @param timeout     how long the token should be valid for"
-   * @param timeoutUnit unit use to calculate the timeout
+   * @param timeoutUnit unit used to calculate the timeout
    * @return the new auth token
    */
   ScaniiAuthToken createAuthToken(int timeout, TimeUnit timeoutUnit);
 
   /**
-   * Deletes a pre existing auth token
+   * Deletes a pre-existing auth token
    *
    * @param id the id of the token to be deleted
    */
@@ -184,7 +184,7 @@ public interface ScaniiClient {
    * Retrieves a previously created auth token
    *
    * @param id the id of the token to be retrieved
-   * @return scanii result @see ScaniiAuthToken
+   * @return scanii result {@link ScaniiAuthToken}
    */
   ScaniiAuthToken retrieveAuthToken(String id);
 

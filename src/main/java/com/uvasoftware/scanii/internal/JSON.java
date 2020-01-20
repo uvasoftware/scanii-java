@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class JSON {
   private static ObjectMapper mapper = new ObjectMapper();
@@ -28,24 +26,6 @@ public class JSON {
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-  }
-
-  public static <T> T load(Path file, Class<T> valueType) {
-    try {
-      return load(new String(Files.readAllBytes(file)), valueType);
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-
-  public static JsonNode load(Path file) {
-    try {
-      return mapper.readTree(Files.readAllBytes(file));
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-
   }
 
   public static JsonNode load(String js) {
