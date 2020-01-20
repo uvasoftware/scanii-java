@@ -7,13 +7,21 @@ package com.uvasoftware.scanii;
  */
 public enum ScaniiTarget {
   v2_0,
-  v2_0_US1,
-  v2_0_EU1,
   v2_1,
+  v2_0_US1,
   v2_1_US1,
+
+  v2_0_EU1,
+  v2_0_EU2,
+
   v2_1_EU1,
+  v2_1_EU2,
+
   v2_0_AP1,
-  v2_1_AP1;
+  v2_0_AP2,
+
+  v2_1_AP1,
+  v2_1_AP2;
 
   public static ScaniiTarget latest() {
     return ScaniiTarget.v2_1;
