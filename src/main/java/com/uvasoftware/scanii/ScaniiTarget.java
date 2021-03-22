@@ -24,15 +24,15 @@ public class ScaniiTarget {
     this.endpoint = URI.create(url);
   }
 
+  protected static List<ScaniiTarget> all() {
+    return Stream.of(AUTO, US1, EU1, EU2, AP1, AP2).collect(Collectors.toList());
+  }
+
   public String resolve(String path) {
     return endpoint.resolve(path).toString();
   }
 
   public URI getEndpoint() {
     return endpoint;
-  }
-
-  protected static List<ScaniiTarget> all() {
-    return Stream.of(AUTO, US1, EU1, EU2, AP1, AP2).collect(Collectors.toList());
   }
 }

@@ -2,17 +2,14 @@ package com.uvasoftware.scanii;
 
 import com.uvasoftware.scanii.batch.ScaniiBatchClient;
 import com.uvasoftware.scanii.impl.DefaultScaniiClient;
-import com.uvasoftware.scanii.internal.Loggers;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
 
 /**
  * Static helper class to speed up the instantiation of new clients.
  */
 public class ScaniiClients {
   public static final String VERSION;
-  private static final Logger LOG = Loggers.build();
 
   static {
     if (ScaniiClients.class.getPackage().getImplementationVersion() != null) {

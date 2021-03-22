@@ -17,8 +17,8 @@ import java.util.function.Consumer;
  * High performance batch client for concurrently processing lots of files
  */
 public class ScaniiBatchClient {
-  private static final Logger LOG = Loggers.build();
   public static final int MAX_CONCURRENT_REQUESTS = 8 * Runtime.getRuntime().availableProcessors();
+  private static final Logger LOG = Loggers.build();
   private final Semaphore semaphore;
 
   private final ExecutorService workers;

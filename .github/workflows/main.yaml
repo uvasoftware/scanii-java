@@ -1,0 +1,57 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Deploying
+    steps:
+      - uses: actions/checkout@v2
+      - uses: joschi/setup-jdk@v2
+        with:
+          java-version: openjdk8
+
+      - uses: actions/cache@v1
+        if: runner.os != 'Windows'
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Prep version
+        run:  |
+          mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
+
+      - name: Maven deploy
+        env:
+          USERNAME: rferreira
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B -DskipTests -pl '!jujube-benchmark,!jujube-example' -s .github/workflows/settings.xml deploy
+
+      - name: Tag release and rev version
+        run: |
+          # tagging release:
+          VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
+
+          echo "################### using version: v$VERSION ###################"
+
+          # tag repo
+          git config --global user.email "ci@uvasoftware.com"
+          git config --global user.name "CI"
+          git tag -a v"${VERSION}" -m "Release by Github Actions v${VERSION}"
+          git push origin v"${VERSION}"
+
+          # bumping it to a new snapshot release:
+          mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit
+
+          VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
+
+          echo "next version is: $VERSION"
+
+          #commit version change
+          git status
+          git commit -a -m "bump to ${VERSION} [ci skip]"
+          git push origin master
