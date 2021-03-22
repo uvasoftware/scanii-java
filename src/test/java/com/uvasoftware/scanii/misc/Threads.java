@@ -1,16 +1,16 @@
 package com.uvasoftware.scanii.misc;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
-
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
 public class Threads {
   public static void waitUntil(BooleanSupplier supplier, int timeout, TimeUnit unit, int sleep, TimeUnit sleepUnit) {
-    Stopwatch sw = Stopwatch.createStarted();
+    Instant limit = Instant.now().plusMillis(unit.toMillis(timeout));
     while (true) {
-      Preconditions.checkState(sw.elapsed(unit) < timeout, "timed out waiting on event %s", supplier);
+      if (Instant.now().isAfter(limit)) {
+        throw new IllegalStateException(String.format("timed out waiting on event %s", supplier));
+      }
       if (supplier.getAsBoolean()) {
         return;
       }

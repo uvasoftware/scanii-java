@@ -47,6 +47,18 @@ public class ScaniiClients {
   }
 
   /**
+   * Creates a default client using an API key/secret pair and routing to the nearest processing endpoint
+   *
+   * @param key    an API key to be used.
+   * @param secret an API secret to be used.
+   * @return the new scanii client.
+   */
+  public static ScaniiClient createDefault(String key, String secret) {
+    return new DefaultScaniiClient(ScaniiTarget.AUTO, key, secret, HttpClients.createDefault());
+  }
+
+
+  /**
    * Creates a default client using an API key/secret pair and a custom Apache HTTP client.
    *
    * @param target     the target region {@link ScaniiTarget}.
@@ -60,7 +72,8 @@ public class ScaniiClients {
   }
 
   /**
-   * Creates a new scanii batch client using an API key/secret pair.
+   * Creates a new scanii batch client using an API key/secret pair. The underlying HTTP client will be tuned
+   * * to match the concurrency of the batch client.
    *
    * @param target the target region {@link ScaniiTarget}.
    * @param key    a API key to be used.
@@ -69,11 +82,17 @@ public class ScaniiClients {
    */
   // batch clients:
   public static ScaniiBatchClient createBatch(ScaniiTarget target, String key, String secret) {
-    return new ScaniiBatchClient(new DefaultScaniiClient(target, key, secret, HttpClients.createDefault()));
+    HttpClient client = HttpClients.custom()
+      .setMaxConnPerRoute(ScaniiBatchClient.MAX_CONCURRENT_REQUESTS)
+      .setMaxConnTotal(ScaniiBatchClient.MAX_CONCURRENT_REQUESTS)
+      .build();
+
+    return new ScaniiBatchClient(new DefaultScaniiClient(target, key, secret, client));
   }
 
   /**
-   * Creates a new scanii batch client using an API key/secret pair.
+   * Creates a new scanii batch client using an API key/secret pair. The underlying HTTP client will be tuned
+   * to match the concurrency of the batch client.
    *
    * @param target                the target region {@link ScaniiTarget}.
    * @param key                   a API key to be used.
@@ -85,7 +104,12 @@ public class ScaniiClients {
                                               String key,
                                               String secret,
                                               int maxConcurrentRequests) {
-    return new ScaniiBatchClient(new DefaultScaniiClient(target, key, secret, HttpClients.createDefault()), maxConcurrentRequests);
+    HttpClient client = HttpClients.custom()
+      .setMaxConnPerRoute(maxConcurrentRequests)
+      .setMaxConnTotal(maxConcurrentRequests)
+      .build();
+
+    return new ScaniiBatchClient(new DefaultScaniiClient(target, key, secret, client), maxConcurrentRequests);
   }
 
   /**

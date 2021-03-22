@@ -144,7 +144,7 @@ public class ScaniiAccountInfo extends ScaniiResult {
     @JsonProperty("last_seen_date")
     private Instant lastSeenDate;
     @JsonProperty("detection_categories_enabled")
-    private Set<String> detectionCategoriesEnalbed;
+    private Set<String> detectionCategoriesEnabled;
     @JsonProperty("tags")
     private Set<String> tags;
 
@@ -172,12 +172,12 @@ public class ScaniiAccountInfo extends ScaniiResult {
       this.lastSeenDate = lastSeenDate;
     }
 
-    public Set<String> getDetectionCategoriesEnalbed() {
-      return detectionCategoriesEnalbed;
+    public Set<String> getDetectionCategoriesEnabled() {
+      return detectionCategoriesEnabled;
     }
 
-    public void setDetectionCategoriesEnalbed(Set<String> detectionCategoriesEnalbed) {
-      this.detectionCategoriesEnalbed = detectionCategoriesEnalbed;
+    public void setDetectionCategoriesEnabled(Set<String> detectionCategoriesEnabled) {
+      this.detectionCategoriesEnabled = detectionCategoriesEnabled;
     }
 
     public Set<String> getTags() {

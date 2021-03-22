@@ -160,7 +160,7 @@ public interface ScaniiClient {
   /**
    * Pings the scanii service using the credentials provided @see <a href="http://docs.scanii.com/v2.1/resources.html#ping">http://docs.scanii.com/v2.1/resources.html#ping</a>
    *
-   * @return true if we saw a pong back from scanii
+   * @return true if we saw a pong back from scanii, false otherwise
    */
   boolean ping();
 

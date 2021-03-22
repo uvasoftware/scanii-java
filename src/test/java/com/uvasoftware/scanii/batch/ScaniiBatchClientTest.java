@@ -24,7 +24,7 @@ class ScaniiBatchClientTest {
 
   @Test
   void testSubmit() throws Exception {
-    ScaniiBatchClient batchClient = ScaniiClients.createBatch(ScaniiTarget.latest(), KEY, SECRET);
+    ScaniiBatchClient batchClient = ScaniiClients.createBatch(ScaniiTarget.AUTO, KEY, SECRET);
     int count = 100;
 
     final CountDownLatch latch = new CountDownLatch(count);

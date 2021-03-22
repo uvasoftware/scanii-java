@@ -1,14 +1,13 @@
 package com.uvasoftware.scanii.batch;
 
 import com.uvasoftware.scanii.ScaniiClient;
-import com.uvasoftware.scanii.ScaniiException;
 import com.uvasoftware.scanii.internal.Loggers;
 import com.uvasoftware.scanii.models.ScaniiProcessingResult;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class ScaniiBatchClient {
   private static final Logger LOG = Loggers.build();
-  private static final int MAX_CONCURRENT_REQUESTS = 8 * Runtime.getRuntime().availableProcessors();
+  public static final int MAX_CONCURRENT_REQUESTS = 8 * Runtime.getRuntime().availableProcessors();
   private final Semaphore semaphore;
 
   private final ExecutorService workers;
@@ -35,7 +34,7 @@ public class ScaniiBatchClient {
   public ScaniiBatchClient(ScaniiClient client, int maxConcurrentRequests) {
     this.client = client;
     semaphore = new Semaphore(maxConcurrentRequests);
-    workers = new ForkJoinPool(maxConcurrentRequests);
+    workers = Executors.newWorkStealingPool(maxConcurrentRequests);
     LOG.info("batch client created with {} max concurrent requests", maxConcurrentRequests);
   }
 
@@ -46,6 +45,17 @@ public class ScaniiBatchClient {
    * @param handler Method to be called once processing is completed and a result is at hand
    */
   public void submit(final Path content, final Consumer<ScaniiProcessingResult> handler) {
+    submit(content, handler, Throwable::printStackTrace);
+  }
+
+  /**
+   * Submits a file for batch processing
+   *
+   * @param content          Path to the content to be processed
+   * @param handler          Method to be called once processing is completed and a result is at hand
+   * @param exceptionHandler Method to be called once an exception is thrown
+   */
+  public void submit(final Path content, final Consumer<ScaniiProcessingResult> handler, final Consumer<Throwable> exceptionHandler) {
     try {
       semaphore.acquire();
       pending.incrementAndGet();
@@ -63,7 +73,7 @@ public class ScaniiBatchClient {
       });
     } catch (Exception ex) {
       failed.incrementAndGet();
-      throw new ScaniiException(ex);
+      exceptionHandler.accept(ex);
     } finally {
       semaphore.release();
     }

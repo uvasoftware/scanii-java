@@ -15,7 +15,7 @@ public class Systems {
     while (sb.length() < length) {
       sb.append(Integer.toHexString(random.nextInt()));
     }
-    return sb.toString().substring(0, length);
+    return sb.substring(0, length);
   }
 
   public static Path randomFile(long size) throws IOException {
