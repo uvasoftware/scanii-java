@@ -2,7 +2,6 @@ package com.uvasoftware.scanii;
 
 import com.uvasoftware.scanii.misc.EICAR;
 import com.uvasoftware.scanii.misc.Systems;
-import com.uvasoftware.scanii.misc.Threads;
 import com.uvasoftware.scanii.models.ScaniiAccountInfo;
 import com.uvasoftware.scanii.models.ScaniiAuthToken;
 import com.uvasoftware.scanii.models.ScaniiPendingResult;
@@ -15,12 +14,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
-class ScaniiClientTest {
+class ScaniiClientTest extends IntegrationTest {
   private static final String KEY;
   private static final String SECRET;
 
@@ -166,10 +164,9 @@ class ScaniiClientTest {
     Assertions.assertNotNull(result.getHostId());
     System.out.println(result);
 
-    Thread.sleep(1000);
-
+    ScaniiProcessingResult actualResult = pollForResult(() -> client.retrieve(result.getResourceId()).orElse(null),
+      Duration.ofMinutes(1));
     // now fetching the retrieve
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertNotNull(actualResult.getChecksum());
     Assertions.assertNull(actualResult.getResourceLocation());
@@ -187,10 +184,12 @@ class ScaniiClientTest {
     ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), new HashMap<String, String>() {{
       put("foo", "bar");
     }});
-    Thread.sleep(1000);
+
+
+    ScaniiProcessingResult actualResult = pollForResult((() -> client.retrieve(result.getResourceId())
+      .orElse(null)), Duration.ofMinutes(1));
 
     // now fetching the retrieve
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
@@ -203,10 +202,9 @@ class ScaniiClientTest {
     ScaniiPendingResult result = client.processAsync(is, new HashMap<String, String>() {{
       put("foo", "bar");
     }});
-    Thread.sleep(1000);
 
-    // now fetching the retrieve
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    ScaniiProcessingResult actualResult = pollForResult(() -> client.retrieve(result.getResourceId())
+      .orElse(null), Duration.ofMinutes(1));
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
@@ -216,10 +214,10 @@ class ScaniiClientTest {
     ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), "https://httpbin.org/post", new HashMap<String, String>() {{
       put("foo", "bar");
     }});
-    Thread.sleep(1000);
 
-    // now fetching the retrieve
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    ScaniiProcessingResult actualResult = pollForResult(() -> client.retrieve(result.getResourceId())
+      .orElse(null), Duration.ofMinutes(1));
+
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
@@ -232,10 +230,10 @@ class ScaniiClientTest {
     ScaniiPendingResult result = client.processAsync(is, "https://httpbin.org/post", new HashMap<String, String>() {{
       put("foo", "bar");
     }});
-    Thread.sleep(1000);
 
-    // now fetching the retrieve
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
+    ScaniiProcessingResult actualResult = pollForResult(() -> client.retrieve(result.getResourceId())
+      .orElse(null), Duration.ofMinutes(1));
+
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
   }
@@ -252,10 +250,9 @@ class ScaniiClientTest {
     Assertions.assertNotNull(result.getHostId());
     System.out.println(result);
 
-    Thread.sleep(1000);
+    ScaniiProcessingResult actualResult = pollForResult(() -> client.retrieve(result.getResourceId())
+      .orElse(null), Duration.ofMinutes(1));
 
-    // fetching result:
-    ScaniiProcessingResult actualResult = client.retrieve(result.getResourceId()).orElseThrow(IllegalStateException::new);
     Assertions.assertNotNull(actualResult.getResourceId());
     Assertions.assertNotNull(actualResult.getChecksum());
     Assertions.assertNull(actualResult.getResourceLocation());
@@ -279,26 +276,18 @@ class ScaniiClientTest {
     Assertions.assertNotNull(result.getHostId());
     System.out.println(result);
 
-    AtomicReference<ScaniiProcessingResult> actualResult = new AtomicReference<>();
-    Threads.waitUntil(() -> {
-      Optional<ScaniiProcessingResult> potentialResult = client.retrieve(result.getResourceId());
-      if (potentialResult.isPresent()) {
-        actualResult.set(potentialResult.get());
-        return true;
-      }
-      return false;
+    ScaniiProcessingResult actualResult = pollForResult(() -> client.retrieve(result.getResourceId())
+      .orElse(null), Duration.ofMinutes(1));
 
-    }, 5, TimeUnit.SECONDS);
-
-    Assertions.assertNotNull(actualResult.get().getResourceId());
-    Assertions.assertNotNull(actualResult.get().getChecksum());
-    Assertions.assertNull(actualResult.get().getResourceLocation());
-    Assertions.assertNotNull(actualResult.get().getRawResponse());
-    Assertions.assertNotNull(actualResult.get().getRequestId());
-    Assertions.assertNotNull(actualResult.get().getContentType());
-    Assertions.assertNotNull(actualResult.get().getHostId());
-    Assertions.assertNotNull(actualResult.get().getFindings());
-    Assertions.assertEquals("content.malicious.eicar-test-signature", actualResult.get().getFindings().get(0));
+    Assertions.assertNotNull(actualResult.getResourceId());
+    Assertions.assertNotNull(actualResult.getChecksum());
+    Assertions.assertNull(actualResult.getResourceLocation());
+    Assertions.assertNotNull(actualResult.getRawResponse());
+    Assertions.assertNotNull(actualResult.getRequestId());
+    Assertions.assertNotNull(actualResult.getContentType());
+    Assertions.assertNotNull(actualResult.getHostId());
+    Assertions.assertNotNull(actualResult.getFindings());
+    Assertions.assertEquals("content.malicious.eicar-test-signature", actualResult.getFindings().get(0));
   }
 
   @Test
@@ -309,23 +298,13 @@ class ScaniiClientTest {
     }});
     Assertions.assertNotNull(result.getResourceId());
 
-    final ScaniiProcessingResult[] actualResult = {null};
 
-    Threads.waitUntil(() -> {
-      try {
-        System.out.println("attempting to load result " + result.getResourceId());
-        Optional<ScaniiProcessingResult> actualResultOptional = client.retrieve(result.getResourceId());
-        if (actualResultOptional.isPresent()) {
-          actualResult[0] = actualResultOptional.get();
-          return true;
-        }
-      } catch (ScaniiException ignored) {
-      }
-      return false;
-    }, 5, TimeUnit.SECONDS);
+    ScaniiProcessingResult actualResult = pollForResult(() -> {
+      System.out.println("attempting to load result " + result.getResourceId());
+      return client.retrieve(result.getResourceId()).orElse(null);
+    }, Duration.ofMinutes(1));
 
-    Assertions.assertNotNull(actualResult[0]);
-    Assertions.assertEquals("bar", actualResult[0].getMetadata().get("foo"));
+    Assertions.assertEquals("bar", actualResult.getMetadata().get("foo"));
     System.out.println(result);
 
 

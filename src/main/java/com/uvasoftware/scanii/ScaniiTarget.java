@@ -35,4 +35,11 @@ public class ScaniiTarget {
   public URI getEndpoint() {
     return endpoint;
   }
+
+  @Override
+  public String toString() {
+    return "ScaniiTarget{" +
+      "endpoint=" + endpoint +
+      '}';
+  }
 }
