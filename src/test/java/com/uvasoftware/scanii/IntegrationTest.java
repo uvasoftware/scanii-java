@@ -12,10 +12,10 @@ abstract class IntegrationTest {
   protected  <T> T pollForResult(Supplier<T> supplier, Duration timeout) throws InterruptedException {
     Instant limit = Instant.now().plus(timeout);
     while (Instant.now().isBefore(limit)) {
-      LOG.info("polling");
       if (supplier.get() != null) {
         return supplier.get();
       }
+      LOG.info("waiting...");
       //noinspection BusyWait
       Thread.sleep(Duration.ofSeconds(1).toMillis());
     }
