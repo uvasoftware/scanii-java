@@ -4,9 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>3.9.0-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <description>Scanii.com Java bindings</description>
+  <description>Scanii.com Java SDK</description>
   <name>scanii-java</name>
   <url>https://github.com/uvasoftware/scanii-java</url>
 
@@ -18,15 +18,23 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jackson.version>2.12.1</jackson.version>
+    <jackson.version>2.10.2</jackson.version>
     <hc.version>4.5.10</hc.version>
     <junit.version>5.0.3</junit.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <logback.version>1.2.3</logback.version>
+    <jdk.version>8</jdk.version>
+    <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <nexus-staging-plugin.version>1.6.8</nexus-staging-plugin.version>
   </properties>
 
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
 
@@ -35,7 +43,7 @@
       <name>Uva Software engineers</name>
       <email>ping@uvasoftware.com</email>
       <organization>Uva Software, LLC</organization>
-      <organizationUrl>http://www.uvasoftware.com</organizationUrl>
+      <organizationUrl>https://www.uvasoftware.com</organizationUrl>
     </developer>
   </developers>
 
@@ -70,7 +78,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
@@ -81,7 +89,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>${maven-gpg-plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -95,12 +103,12 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
-            <version>2.3.2</version>
+            <version>${maven-release-plugin.version}</version>
             <dependencies>
               <dependency>
                 <groupId>org.apache.maven.scm</groupId>
                 <artifactId>maven-scm-provider-gitexe</artifactId>
-                <version>1.9</version>
+                <version>1.9.4</version>
               </dependency>
             </dependencies>
           </plugin>
@@ -134,7 +142,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.4</version>
+        <version>${maven-source-plugin.version}</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -144,82 +152,32 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.1</version>
-        <configuration>
-          <!-- CircleCI build workaround -->
-          <argLine>-Xms1g -Xmx2g</argLine>
-          <reuseForks>true</reuseForks>
-          <useSystemClassLoader>false</useSystemClassLoader>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-            </manifest>
-            <manifestEntries>
-              <Automatic-Module-Name>com.uvasoftware.scanii</Automatic-Module-Name>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>1.6</version>
-        <configuration>
-          <shadedArtifactAttached>true</shadedArtifactAttached>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.uvasoftware.scanii.cli.ScaniiCli</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>8</source>
-          <target>8</target>
+          <source>${jdk.version}</source>
+          <target>${jdk.version}</target>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.0.1</version>
+        <configuration>
+          <doclint>none</doclint>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -247,6 +205,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
       <version>${jackson.version}</version>
@@ -261,31 +225,10 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
       <version>${jackson.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>net.sourceforge.argparse4j</groupId>
-      <artifactId>argparse4j</artifactId>
-      <version>0.6.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.mfornos</groupId>
-      <artifactId>humanize-slim</artifactId>
-      <version>1.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>26.0-jre</version>
-    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.13</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.13</version>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

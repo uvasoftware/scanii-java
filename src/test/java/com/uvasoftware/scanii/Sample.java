@@ -6,12 +6,14 @@ import java.nio.file.Paths;
 
 public class Sample {
   public static void main(String[] args) {
-    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.latest(), args[0], args[1]);
+    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.AUTO, args[0], args[1]);
     ScaniiProcessingResult result = client.process(Paths.get(args[2]));
-    System.out.println(String.format("checksum: %s, content-type: %s and findings: %s",
+    System.out.printf("checksum: %s, content-type: %s and findings: %s%n",
       result.getChecksum(),
       result.getContentType(),
-      result.getFindings())
-    );
+      result.getFindings());
+    if (result.getFindings().isEmpty()) {
+      System.out.println("Content is safe!");
+    }
   }
 }

@@ -1,0 +1,74 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: "Deploying"
+    env:
+      JDK_VERSION: "8"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Restore cache
+        uses: actions/cache@v1
+        if: runner.os != 'Windows'
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: "Setup java to publish to maven central"
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JDK_VERSION}}
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+      - name: Prep version
+        run: |
+          mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
+
+      - name: "Maven deploy maven central"
+        run: mvn -B -DskipTests deploy
+        env:
+          MAVEN_USERNAME: ${{secrets.MAVEN_USER}}
+          MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
+
+      - name: "Setup java to publish to github packages"
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JDK_VERSION}}
+
+      - name: "Maven deploy github packages"
+        run: mvn -B -DskipTests deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Tag release and rev version"
+        run: |
+          # tagging release:
+          VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
+
+          echo "################### using version: v$VERSION ###################"
+
+          # tag repo
+          git config --global user.email "ci@uvasoftware.com"
+          git config --global user.name "CI"
+          git tag -a v"${VERSION}" -m "Release by Github Actions v${VERSION}"
+          git push origin v"${VERSION}"
+
+          # bumping it to a new snapshot release:
+          mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit
+
+          VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
+
+          echo "next version is: $VERSION"
+
+          #commit version change
+          git status
+          git commit -a -m "bump to ${VERSION} [ci skip]"
+          git push origin master
