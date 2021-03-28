@@ -32,11 +32,11 @@ jobs:
         run: |
           mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
 
-      - name: "Maven deploy maven central"
-        run: mvn -B -DskipTests deploy
-        env:
-          MAVEN_USERNAME: ${{secrets.MAVEN_USER}}
-          MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
+#      - name: "Maven deploy maven central"
+#        run: mvn -B -DskipTests -s .github/workflows/settings.xml deploy
+#        env:
+#          MAVEN_USERNAME: ${{secrets.MAVEN_USER}}
+#          MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
 
       - name: "Setup java to publish to github packages"
         uses: actions/setup-java@v1
@@ -44,7 +44,7 @@ jobs:
           java-version: ${{env.JDK_VERSION}}
 
       - name: "Maven deploy github packages"
-        run: mvn -B -DskipTests deploy
+        run: mvn -B -DskipTests -s .github/workflows/settings.xml deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

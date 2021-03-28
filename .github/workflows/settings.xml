@@ -1,18 +1,32 @@
 <settings>
-  <servers>
-    <server>
-      <id>ossrh</id>
-      <username>${MAVEN_USER}</username>
-      <password>${MAVEN_PASSWORD}</password>
-    </server>
-  </servers>
+  <activeProfiles>
+    <activeProfile>github</activeProfile>
+  </activeProfiles>
+
   <profiles>
     <profile>
-      <id>release-sign-artifacts</id>
-      <properties>
-        <gpg.executable>gpg</gpg.executable>
-        <gpg.keyname>ping@uvasoftware.com</gpg.keyname>
-      </properties>
+      <id>github</id>
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/OWNER/*</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
     </profile>
   </profiles>
+
+  <servers>
+    <server>
+      <id>github</id>
+      <username>USERNAME</username>
+      <password>TOKEN</password>
+    </server>
+  </servers>
 </settings>
