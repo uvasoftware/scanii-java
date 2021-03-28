@@ -6,14 +6,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Deploying
+    name: "Deploying"
+    env:
+      JDK_VERSION: "8"
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
-        with:
-          java-version: openjdk8
-
-      - uses: actions/cache@v1
+      - name: Restore cache
+        uses: actions/cache@v1
         if: runner.os != 'Windows'
         with:
           path: ~/.m2/repository
@@ -21,17 +20,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: "Setup java to publish to maven central"
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JDK_VERSION}}
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
       - name: Prep version
-        run:  |
+        run: |
           mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
 
-      - name: Maven deploy
+      - name: "Maven deploy maven central"
+        run: mvn -B -DskipTests deploy
         env:
-          USERNAME: rferreira
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B -DskipTests -pl '!jujube-benchmark,!jujube-example' -s .github/workflows/settings.xml deploy
+          MAVEN_USERNAME: ${{secrets.MAVEN_USER}}
+          MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
 
-      - name: Tag release and rev version
+      - name: "Setup java to publish to github packages"
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JDK_VERSION}}
+
+      - name: "Maven deploy github packages"
+        run: mvn -B -DskipTests deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Tag release and rev version"
         run: |
           # tagging release:
           VERSION=$(grep \<version\> pom.xml | xargs | awk -F '[<>]' '{ print $3}')
