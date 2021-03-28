@@ -6,24 +6,26 @@
   <profiles>
     <profile>
       <id>github</id>
-      <distributionManagement>
         <repository>
           <id>github</id>
           <name>GitHub Packages</name>
           <url>https://maven.pkg.github.com/uvasoftware/scanii-java</url>
         </repository>
-      </distributionManagement>
     </profile>
 
     <profile>
       <id>osshr</id>
-      <distributionManagement>
         <repository>
           <id>ossrh</id>
           <name>Central Repository OSSRH</name>
           <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
         </repository>
-      </distributionManagement>
       <build>
         <plugins>
           <plugin>
@@ -67,4 +69,11 @@
       </build>
     </profile>
   </profiles>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>${env.GITHUB_USERNAME}</username>
+      <password>${env.GITHUB_TOKEN}</password>
+    </server>
+  </servers>
 </settings>
