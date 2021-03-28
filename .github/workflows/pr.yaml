@@ -1,4 +1,4 @@
-name: PR Builds
+name: PRs
 on: pull_request
 
 jobs:
