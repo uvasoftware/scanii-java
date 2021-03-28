@@ -25,6 +25,7 @@
     <logback.version>1.2.3</logback.version>
     <jdk.version>8</jdk.version>
     <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+    <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
@@ -38,6 +39,14 @@
     </license>
   </licenses>
 
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <name>Central Repository OSSRH</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
   <developers>
     <developer>
       <name>Uva Software engineers</name>
@@ -46,13 +55,6 @@
       <organizationUrl>https://www.uvasoftware.com</organizationUrl>
     </developer>
   </developers>
-
-  <scm>
-    <connection>scm:git:git@github.com:uvasoftware/scanii-java.git</connection>
-    <developerConnection>scm:git:git@github.com:uvasoftware/scanii-java.git</developerConnection>
-    <url>https://github.com/uvasoftware/scanii-java</url>
-    <tag>HEAD</tag>
-  </scm>
   <build>
     <plugins>
       <!--enforcing licenses -->
@@ -73,29 +75,10 @@
           <sortArtifactByName>true</sortArtifactByName>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>${maven-source-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.1</version>
+        <version>${maven-surefire-plugin.version}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -106,23 +89,6 @@
           <target>${jdk.version}</target>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.0.1</version>
-        <configuration>
-          <doclint>none</doclint>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
 
   </build>
@@ -176,5 +142,90 @@
       <version>${hc.version}</version>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>ossrh</id>
+      <properties>
+        <maven.test.skip>true</maven.test.skip>
+      </properties>
 
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>${nexus-staging-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- Prevent gpg from using pinentry programs -->
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>${maven-release-plugin.version}</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-provider-gitexe</artifactId>
+                <version>1.9.4</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.0.1</version>
+            <configuration>
+              <doclint>none</doclint>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
