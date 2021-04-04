@@ -25,14 +25,14 @@ jobs:
           mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
 
       - name: "Setup java to publish to maven central"
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2-preview
         with:
           java-version: ${{env.JDK_VERSION}}
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{secrets.MAVEN_GPG_KEY}}
-          gpg-passphrase: GPG_PASSPHRASE
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: "GPG info"
         run: gpg --list-keys
