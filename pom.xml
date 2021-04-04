@@ -45,12 +45,16 @@
   </scm>
 
   <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
       <id>ossrh</id>
-      <name>Central Repository OSSRH</name>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
+
 
   <developers>
     <developer>
@@ -162,14 +166,7 @@
   </dependencies>
   <profiles>
     <profile>
-      <id>ossrh</id>
-      <properties>
-        <maven.test.skip>true</maven.test.skip>
-      </properties>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-
+      <id>release</id>
       <build>
         <plugins>
           <plugin>
@@ -186,14 +183,15 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>${maven-gpg-plugin.version}</version>
             <executions>
               <execution>
+                <id>sign-artifacts</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
                 <configuration>
+                  <!-- Prevent `gpg` from using pinentry programs -->
                   <gpgArguments>
                     <arg>--pinentry-mode</arg>
                     <arg>loopback</arg>
