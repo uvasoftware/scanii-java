@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>4.2.0-SNAPSHOT</version>
+  <version>4.1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>Scanii.com Java SDK</description>
   <name>scanii-java</name>
@@ -43,18 +43,6 @@
     <url>https://github.com/uvasoftware/scanii-java</url>
     <tag>HEAD</tag>
   </scm>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
 
   <developers>
     <developer>
@@ -165,8 +153,30 @@
     </dependency>
   </dependencies>
   <profiles>
+
     <profile>
-      <id>release</id>
+      <id>github</id>
+      <distributionManagement>
+        <repository>
+          <id>github</id>
+          <name>GitHub Packages</name>
+          <url>https://maven.pkg.github.com/uvasoftware/scanii-java</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+
+    <profile>
+      <id>central</id>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>ossrh</id>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+          <id>ossrh</id>
+          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+      </distributionManagement>
       <build>
         <plugins>
           <plugin>
