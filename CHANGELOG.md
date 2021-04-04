@@ -1,5 +1,5 @@
 # Changelog
-
+## v4.1.0
 ## v4.0.0
 * Dropped support for protocol versions older than 2.1
 * Dropped batch client (it wasn't getting used, and it's simple to build your own)

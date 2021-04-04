@@ -35,9 +35,6 @@ jobs:
           gpg-private-key: ${{secrets.MAVEN_GPG_KEY}}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: "GPG info"
-        run: gpg --list-keys
-
       - name: "Maven deploy maven central"
         run: mvn deploy --batch-mode -D skipTests --activate-profiles release --no-transfer-progress
         env:
@@ -68,4 +65,4 @@ jobs:
           #commit version change
           git status
           git commit -a -m "bump to ${VERSION} [ci skip]"
-          git push origin master
+          git push origin main
