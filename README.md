@@ -12,8 +12,6 @@
 </dependency>
 ```
 
-Javadocs: https://www.javadoc.io/doc/com.uvasoftware/scanii-java/latest/index.html
-
 ### Sample usage:
  
 ```java
@@ -38,8 +36,6 @@ public class Sample {
 
 Please note that you will need a valid scanii.com account and API Credentials. 
 
-More advanced usage examples can be found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/java/com/uvasoftware/scanii/ScaniiClientTest.java)
-
-General documentation on scanii can be found [here](http://docs.scanii.com)
- 
-
+* More advanced usage examples can be found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/java/com/uvasoftware/scanii/ScaniiClientTest.java)
+* General documentation on scanii can be found [here](http://docs.scanii.com)
+* Javadocs can be found [here](https://www.javadoc.io/doc/com.uvasoftware/scanii-java/latest/index.html)
