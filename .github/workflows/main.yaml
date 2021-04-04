@@ -27,6 +27,7 @@ jobs:
       - name: "Setup java to publish to maven central"
         uses: actions/setup-java@v2-preview
         with:
+          distribution: "zulu"
           java-version: ${{env.JDK_VERSION}}
           server-id: ossrh
           server-username: MAVEN_USERNAME
