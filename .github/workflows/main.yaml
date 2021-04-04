@@ -43,6 +43,7 @@ jobs:
         env:
           MAVEN_USERNAME: ${{secrets.MAVEN_USER}}
           MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: "Tag release and rev version"
         run: |
