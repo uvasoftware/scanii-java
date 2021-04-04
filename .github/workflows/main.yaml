@@ -39,7 +39,7 @@ jobs:
         run: gpg --list-keys
 
       - name: "Maven deploy maven central"
-        run: mvn -X -B -P ossrh deploy
+        run: mvn deploy --batch-mode -D skipTests --activate-profiles release --no-transfer-progress
         env:
           MAVEN_USERNAME: ${{secrets.MAVEN_USER}}
           MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
