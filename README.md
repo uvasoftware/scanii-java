@@ -12,6 +12,8 @@
 </dependency>
 ```
 
+Javadocs: https://www.javadoc.io/doc/com.uvasoftware/scanii-java/latest/index.html
+
 ### Sample usage:
  
 ```java
