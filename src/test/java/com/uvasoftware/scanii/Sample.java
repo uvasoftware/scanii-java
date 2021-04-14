@@ -6,7 +6,10 @@ import java.nio.file.Paths;
 
 public class Sample {
   public static void main(String[] args) {
-    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.AUTO, args[0], args[1]);
+    // in this example args contains the key secret and file path:
+    String key = args[0];
+    String secret = args[1];
+    ScaniiClient client = ScaniiClients.createDefault(key, secret);
     ScaniiProcessingResult result = client.process(Paths.get(args[2]));
     System.out.printf("checksum: %s, content-type: %s and findings: %s%n",
       result.getChecksum(),
