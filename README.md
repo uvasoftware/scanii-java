@@ -5,6 +5,7 @@
 #### Installing using Maven coordinates:
 
 ```xml
+
 <dependency>
   <groupId>com.uvasoftware</groupId>
   <artifactId>scanii-java</artifactId>
@@ -13,7 +14,7 @@
 ```
 
 ### Sample usage:
- 
+
 ```java
 package com.uvasoftware.scanii;
 
@@ -23,19 +24,25 @@ import java.nio.file.Paths;
 
 public class Sample {
   public static void main(String[] args) {
-    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.latest(), args[0], args[1]);
+    // in this example args contains the key secret and file path:
+    String key = args[0];
+    String secret = args[1];
+    ScaniiClient client = ScaniiClients.createDefault(key, secret);
     ScaniiProcessingResult result = client.process(Paths.get(args[2]));
-    System.out.println(String.format("checksum: %s, content-type: %s and findings: %s",
+    System.out.printf("checksum: %s, content-type: %s and findings: %s%n",
       result.getChecksum(),
       result.getContentType(),
-      result.getFindings())
-    );
+      result.getFindings());
+    if (result.getFindings().isEmpty()) {
+      System.out.println("Content is safe!");
+    }
   }
 }
 ```
 
-Please note that you will need a valid scanii.com account and API Credentials. 
+Please note that you will need a valid scanii.com account and API Credentials.
 
-* More advanced usage examples can be found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/java/com/uvasoftware/scanii/ScaniiClientTest.java)
+* More advanced usage examples can be
+  found [here](https://github.com/uvasoftware/scanii-java/blob/master/src/test/java/com/uvasoftware/scanii/ScaniiClientTest.java)
 * General documentation on scanii can be found [here](http://docs.scanii.com)
 * Javadocs can be found [here](https://www.javadoc.io/doc/com.uvasoftware/scanii-java/latest/index.html)

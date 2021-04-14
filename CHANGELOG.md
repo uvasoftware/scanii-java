@@ -1,5 +1,7 @@
 # Changelog
-## v4.1.0
+## v4.2.1
+* Readme updated
+## v4.2.0
 * Starting deploying to GH packages alongside maven central
 ## v4.0.0
 * Dropped support for protocol versions older than 2.1
