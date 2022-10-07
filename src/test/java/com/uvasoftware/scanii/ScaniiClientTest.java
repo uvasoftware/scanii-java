@@ -323,7 +323,7 @@ class ScaniiClientTest extends IntegrationTest {
     Assertions.assertNotNull(result.getCreationDate());
 
     // now using the auth token to create a new client and process content
-    ScaniiClient tempClient = ScaniiClients.createDefault(ScaniiTarget.AUTO, result.getResourceId());
+    ScaniiClient tempClient = ScaniiClients.createDefault(ScaniiTarget.AUTO, result);
     ScaniiProcessingResult processingResult = tempClient.process(Systems.randomFile(1024));
     Assertions.assertNotNull(processingResult.getResourceId());
     Assertions.assertNotNull(processingResult.getChecksum());
@@ -341,7 +341,8 @@ class ScaniiClientTest extends IntegrationTest {
   @Test
   void testDeleteAuthToken() {
     ScaniiAuthToken result = client.createAuthToken(1, TimeUnit.HOURS);
-    client.deleteAuthToken(result.getResourceId());
+    Assertions.assertTrue(client.deleteAuthToken(result.getResourceId()));
+    Assertions.assertThrows(ScaniiException.class, ()->client.deleteAuthToken("abc"));
   }
 
   @Test

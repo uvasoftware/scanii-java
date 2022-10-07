@@ -1,4 +1,9 @@
 # Changelog
+## v5.0.0
+* Dependency upgrades 
+* Fixes #65 breaking public interface
+* Requires JDK 11 or later
+* Fixed issue with JAR manifest 
 ## v4.2.1
 * Readme updated
 ## v4.2.0

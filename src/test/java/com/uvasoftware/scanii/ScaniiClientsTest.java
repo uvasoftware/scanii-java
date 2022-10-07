@@ -1,6 +1,7 @@
 package com.uvasoftware.scanii;
 
 import com.uvasoftware.scanii.impl.DefaultScaniiClient;
+import com.uvasoftware.scanii.models.ScaniiAuthToken;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +17,9 @@ class ScaniiClientsTest {
 
   @Test
   void createDefault1() {
-    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.AUTO, "key");
+    ScaniiAuthToken token = new ScaniiAuthToken();
+    token.setResourceId("123");
+    ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.AUTO, token);
     Assertions.assertNotNull(client);
   }
 

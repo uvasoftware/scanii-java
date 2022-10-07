@@ -178,7 +178,7 @@ public interface ScaniiClient {
    *
    * @param id the id of the token to be deleted
    */
-  void deleteAuthToken(String id);
+  boolean deleteAuthToken(String id);
 
   /**
    * Retrieves a previously created auth token

@@ -1,6 +1,7 @@
 package com.uvasoftware.scanii;
 
 import com.uvasoftware.scanii.impl.DefaultScaniiClient;
+import com.uvasoftware.scanii.models.ScaniiAuthToken;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -26,8 +27,8 @@ public class ScaniiClients {
    * @param authToken the auth token to used for authentication.
    * @return the new scanii client.
    */
-  public static ScaniiClient createDefault(ScaniiTarget target, String authToken) {
-    return new DefaultScaniiClient(target, authToken, "", HttpClients.createDefault());
+  public static ScaniiClient createDefault(ScaniiTarget target, ScaniiAuthToken authToken) {
+    return new DefaultScaniiClient(target, authToken.getResourceId(), "", HttpClients.createDefault());
   }
 
   /**
@@ -66,5 +67,17 @@ public class ScaniiClients {
    */
   public static ScaniiClient createDefault(ScaniiTarget target, String key, String secret, HttpClient httpClient) {
     return new DefaultScaniiClient(target, key, secret, httpClient);
+  }
+
+  /**
+   * Creates a default client using an API key/secret pair and a custom Apache HTTP client.
+   *
+   * @param target     the target region {@link ScaniiTarget}.
+   * @param authToken  the auth token to used for authentication.
+   * @param httpClient a Apache HTTP Client you would like to use.
+   * @return the new scanii client.
+   */
+  public static ScaniiClient createDefault(ScaniiTarget target, ScaniiAuthToken authToken, HttpClient httpClient) {
+    return new DefaultScaniiClient(target, authToken.getResourceId(), "", httpClient);
   }
 }
