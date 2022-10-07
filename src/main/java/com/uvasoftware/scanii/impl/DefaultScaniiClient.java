@@ -46,10 +46,18 @@ public class DefaultScaniiClient implements ScaniiClient {
   private final String userAgentHeader;
   private final ErrorExtractor errorExtractor;
 
-
   public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient) {
-    Objects.requireNonNull(key, "please pass a non-null key");
-    Objects.requireNonNull(secret, "please pass a non-null secret");
+    if (key == null || key.length() == 0) {
+      throw new IllegalArgumentException("key must not be null or empty");
+    }
+
+    if (key.contains(":")) {
+      throw new IllegalArgumentException("key must not contain a \":\"");
+    }
+
+    if (secret == null) {
+      throw new IllegalArgumentException("secret must not be null or empty");
+    }
 
     this.target = target;
     this.httpClient = httpClient;
@@ -314,7 +322,7 @@ public class DefaultScaniiClient implements ScaniiClient {
   }
 
   @Override
-  public void deleteAuthToken(String id) {
+  public boolean deleteAuthToken(String id) {
     Objects.requireNonNull(id, "id cannot be null");
 
     HttpDelete req = new HttpDelete(target.resolve("/v2.1/auth/tokens/" + id));
@@ -322,12 +330,12 @@ public class DefaultScaniiClient implements ScaniiClient {
 
     try {
       //noinspection Duplicates
-      httpClient.execute(req, response -> {
+      return httpClient.execute(req, response -> {
         if (response.getStatusLine().getStatusCode() != 204) {
           String responseEntity = EntityUtils.toString(response.getEntity());
           parseAndThrowError(response, responseEntity);
         }
-        return null;
+        return true;
       });
     } catch (IOException e) {
       throw new ScaniiException(e);
@@ -415,11 +423,12 @@ public class DefaultScaniiClient implements ScaniiClient {
   }
 
   private void parseAndThrowError(HttpResponse response, String responseEntity) {
-    if (response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue().equals("application/json")) {
+    if (response.getFirstHeader(HttpHeaders.CONTENT_TYPE) != null && response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue().equals("application/json")) {
       throw new ScaniiException(response.getStatusLine().getStatusCode(), errorExtractor.extract(responseEntity));
     } else {
       throw new ScaniiException(response.getStatusLine().getStatusCode(), responseEntity);
     }
+
   }
 
   private ScaniiProcessingResult processResponse(HttpPost req) {

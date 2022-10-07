@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "Deploying"
     env:
-      JDK_VERSION: "8"
+      JDK_VERSION: "11"
     steps:
       - uses: actions/checkout@v2
       - name: Restore cache
