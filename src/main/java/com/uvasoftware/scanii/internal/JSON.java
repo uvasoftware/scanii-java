@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 
-public class JSON {
+class JSON {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   static {
@@ -20,7 +20,7 @@ public class JSON {
     mapper.registerModule(new JavaTimeModule());
   }
 
-  public static <T> T load(String js, Class<T> valueType) {
+  static <T> T load(String js, Class<T> valueType) {
     try {
       return mapper.readValue(js, valueType);
     } catch (IOException ex) {
@@ -28,7 +28,7 @@ public class JSON {
     }
   }
 
-  public static JsonNode load(String js) {
+  static JsonNode load(String js) {
     try {
       return mapper.readTree(js);
     } catch (IOException ex) {
