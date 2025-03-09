@@ -1,7 +1,7 @@
-package com.uvasoftware.scanii.impl;
+package com.uvasoftware.scanii.internal;
 
 import com.uvasoftware.scanii.ScaniiTarget;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

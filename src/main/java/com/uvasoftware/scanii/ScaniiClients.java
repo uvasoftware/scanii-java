@@ -1,9 +1,9 @@
 package com.uvasoftware.scanii;
 
-import com.uvasoftware.scanii.impl.DefaultScaniiClient;
+import com.uvasoftware.scanii.internal.DefaultScaniiClient;
 import com.uvasoftware.scanii.models.ScaniiAuthToken;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 
 /**
  * Static helper class to speed up the instantiation of new clients.

@@ -1,26 +1,23 @@
-package com.uvasoftware.scanii.impl;
+package com.uvasoftware.scanii.internal;
 
 import com.uvasoftware.scanii.ScaniiClient;
 import com.uvasoftware.scanii.ScaniiClients;
 import com.uvasoftware.scanii.ScaniiException;
 import com.uvasoftware.scanii.ScaniiTarget;
-import com.uvasoftware.scanii.internal.HttpHeaders;
-import com.uvasoftware.scanii.internal.JSON;
-import com.uvasoftware.scanii.internal.Loggers;
 import com.uvasoftware.scanii.models.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -47,7 +44,7 @@ public class DefaultScaniiClient implements ScaniiClient {
   private final ErrorExtractor errorExtractor;
 
   public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient) {
-    if (key == null || key.length() == 0) {
+    if (key == null || key.isEmpty()) {
       throw new IllegalArgumentException("key must not be null or empty");
     }
 
@@ -149,7 +146,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       return httpClient.execute(req, response -> {
         String responseEntity = EntityUtils.toString(response.getEntity());
 
-        if (response.getStatusLine().getStatusCode() != 202) {
+        if (response.getCode() != 202) {
           parseAndThrowError(response, responseEntity);
         }
 
@@ -196,7 +193,7 @@ public class DefaultScaniiClient implements ScaniiClient {
     try {
       return httpClient.execute(req, response -> {
 
-        if (response.getStatusLine().getStatusCode() == 404) {
+        if (response.getCode() == 404) {
           return Optional.empty();
         }
 
@@ -253,7 +250,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       return httpClient.execute(req, response -> {
         String responseEntity = EntityUtils.toString(response.getEntity());
 
-        if (response.getStatusLine().getStatusCode() != 202) {
+        if (response.getCode() != 202) {
           parseAndThrowError(response, responseEntity);
         }
 
@@ -276,7 +273,7 @@ public class DefaultScaniiClient implements ScaniiClient {
     addHeaders(req);
 
     try {
-      return httpClient.execute(req, response -> response.getStatusLine().getStatusCode() == 200);
+      return httpClient.execute(req, response -> response.getCode() == 200);
     } catch (IOException e) {
       throw new ScaniiException(e);
     }
@@ -304,7 +301,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       return httpClient.execute(req, response -> {
         String responseEntity = EntityUtils.toString(response.getEntity());
 
-        if (response.getStatusLine().getStatusCode() != 201) {
+        if (response.getCode() != 201) {
           parseAndThrowError(response, responseEntity);
         }
 
@@ -331,7 +328,7 @@ public class DefaultScaniiClient implements ScaniiClient {
     try {
       //noinspection Duplicates
       return httpClient.execute(req, response -> {
-        if (response.getStatusLine().getStatusCode() != 204) {
+        if (response.getCode() != 204) {
           String responseEntity = EntityUtils.toString(response.getEntity());
           parseAndThrowError(response, responseEntity);
         }
@@ -353,7 +350,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       return httpClient.execute(req, response -> {
         String responseEntity = EntityUtils.toString(response.getEntity());
 
-        if (response.getStatusLine().getStatusCode() != 200) {
+        if (response.getCode() != 200) {
           parseAndThrowError(response, responseEntity);
         }
 
@@ -379,7 +376,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       return httpClient.execute(req, response -> {
         String responseEntity = EntityUtils.toString(response.getEntity());
 
-        if (response.getStatusLine().getStatusCode() != 200) {
+        if (response.getCode() != 200) {
           parseAndThrowError(response, responseEntity);
         }
 
@@ -402,7 +399,7 @@ public class DefaultScaniiClient implements ScaniiClient {
 
   private void extractRequestMetadata(ScaniiResult result, HttpResponse response) {
 
-    result.setStatusCode(response.getStatusLine().getStatusCode());
+    result.setStatusCode(response.getCode());
 
     if (response.containsHeader(HttpHeaders.X_REQUEST_HEADER)) {
       result.setRequestId(response.getLastHeader(HttpHeaders.X_REQUEST_HEADER).getValue());
@@ -424,9 +421,9 @@ public class DefaultScaniiClient implements ScaniiClient {
 
   private void parseAndThrowError(HttpResponse response, String responseEntity) {
     if (response.getFirstHeader(HttpHeaders.CONTENT_TYPE) != null && response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue().equals("application/json")) {
-      throw new ScaniiException(response.getStatusLine().getStatusCode(), errorExtractor.extract(responseEntity));
+      throw new ScaniiException(response.getCode(), errorExtractor.extract(responseEntity));
     } else {
-      throw new ScaniiException(response.getStatusLine().getStatusCode(), responseEntity);
+      throw new ScaniiException(response.getCode(), responseEntity);
     }
 
   }
@@ -437,7 +434,7 @@ public class DefaultScaniiClient implements ScaniiClient {
 
         String responseEntity = EntityUtils.toString(response.getEntity());
 
-        if (response.getStatusLine().getStatusCode() != 201) {
+        if (response.getCode() != 201) {
           parseAndThrowError(response, responseEntity);
         }
 

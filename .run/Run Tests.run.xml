@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Tests" type="JUnit" factoryName="JUnit" singleton="true">
+    <module name="scanii-java" />
+    <extension name="coverage" enabled="false" merge="false" runner="idea" />
+    <extension name="snapshooter" />
+    <option name="PACKAGE_NAME" value="com.uvasoftware.scanii" />
+    <option name="MAIN_CLASS_NAME" value="" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="package" />
+    <option name="VM_PARAMETERS" />
+    <option name="PARAMETERS" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="TEST_SEARCH_SCOPE">
+      <value defaultName="wholeProject" />
+    </option>
+    <envs>
+      <env name="SCANII_CREDS" value="KEY:SECRET" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

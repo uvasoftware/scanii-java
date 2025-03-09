@@ -1,9 +1,9 @@
 package com.uvasoftware.scanii;
 
-import com.uvasoftware.scanii.impl.DefaultScaniiClient;
+import com.uvasoftware.scanii.internal.DefaultScaniiClient;
 import com.uvasoftware.scanii.models.ScaniiAuthToken;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

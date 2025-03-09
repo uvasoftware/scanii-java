@@ -3,7 +3,7 @@ package com.uvasoftware.scanii.internal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Loggers {
+class Loggers {
   private static final Logger LOG = LoggerFactory.getLogger(Loggers.class);
 
   public static Logger build() {

@@ -1,6 +1,4 @@
-package com.uvasoftware.scanii.impl;
-
-import com.uvasoftware.scanii.internal.JSON;
+package com.uvasoftware.scanii.internal;
 
 class ErrorExtractor {
   String extract(String contents) {
