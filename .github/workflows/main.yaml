@@ -3,6 +3,7 @@ permissions:
   contents: write
   actions: write
   deployments: write
+  packages: write
 on:
   push:
     branches:
