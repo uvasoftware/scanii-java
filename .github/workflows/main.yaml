@@ -1,4 +1,8 @@
 name: Main
+permissions:
+  contents: write
+  actions: write
+  deployments: write
 on:
   push:
     branches:
