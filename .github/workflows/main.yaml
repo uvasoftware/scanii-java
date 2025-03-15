@@ -25,19 +25,9 @@ jobs:
       - name: "Removing snapshot from version"
         run: |
           mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
-          
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JDK_VERSION }}
-          cache: "maven"
-          distribution: "corretto"
-
-      - name: "Maven deploy github packages"
-        run: mvn deploy --batch-mode -D skipTests --activate-profiles github --no-transfer-progress
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - uses: actions/setup-java@v4
+    
+      - name: Setup central 
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JDK_VERSION }}
           cache: "maven"
@@ -49,10 +39,22 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       
       - name: "Maven deploy maven central"
-        run: mvn -X deploy --batch-mode -D skipTests --activate-profiles central --no-transfer-progress
+        run: mvn -Pcentral -DskipTests -B deploy
         env: 
           MAVEN_USERNAME: ${{secrets.MAVEN_TOKEN_USER}}
           MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
+
+      - name: Setup github packages
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JDK_VERSION }}
+          cache: "maven"
+          distribution: "corretto"
+
+      - name: "Maven deploy github packages"
+        run: mvn deploy --batch-mode -D skipTests --activate-profiles github --no-transfer-progress
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: "Tag release and rev version"
         run: |
