@@ -43,13 +43,17 @@ jobs:
           cache: "maven"
           distribution: "corretto"
           server-id: central
-          server-username: ${{secrets.MAVEN_TOKEN_USER}}
-          server-password: ${{secrets.MAVEN_TOKEN}}
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_TOKEN
           gpg-private-key: ${{secrets.MAVEN_GPG_KEY}}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
       
       - name: "Maven deploy maven central"
-        run: mvn deploy --batch-mode -D skipTests --activate-profiles central --no-transfer-progress
-  
+        run: mvn -X deploy --batch-mode -D skipTests --activate-profiles central --no-transfer-progress
+        env: 
+          MAVEN_USERNAME: ${{secrets.MAVEN_TOKEN_USER}}
+          MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
+      
       - name: "Tag release and rev version"
         run: |
           # tagging release:
