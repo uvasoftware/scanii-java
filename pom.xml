@@ -31,8 +31,7 @@
   <scm>
     <connection>scm:git:git@github.com:uvasoftware/scanii-java.git</connection>
     <developerConnection>scm:git:git@github.com:uvasoftware/scanii-java.git</developerConnection>
-    <url>https://github.com/uvasoftware/scanii-java</url>
-    <tag>HEAD</tag>
+    <url>https://github.com/uvasoftware/scanii-java/tree/main</url>
   </scm>
 
   <developers>
