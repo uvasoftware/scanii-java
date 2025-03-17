@@ -39,7 +39,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       
       - name: "Maven deploy maven central"
-        run: mvn -Pcentral -DskipTests -B deploy
+        run: mvn deploy --batch-mode -D skipTests --activate-profiles central --no-transfer-progress
         env: 
           MAVEN_USERNAME: ${{secrets.MAVEN_TOKEN_USER}}
           MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
