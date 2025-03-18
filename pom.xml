@@ -171,6 +171,10 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+              <passphrase/> <!-- explicitly empty -->
+              <useAgent>false</useAgent> <!-- ensure no gpg-agent interference -->
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.sonatype.central</groupId>
