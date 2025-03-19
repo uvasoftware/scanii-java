@@ -25,8 +25,8 @@ jobs:
       - name: "Removing snapshot from version"
         run: |
           mvn -q build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit
-    
-      - name: Setup central 
+
+      - name: Setup central
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JDK_VERSION }}
@@ -35,13 +35,15 @@ jobs:
           server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_TOKEN
-          gpg-private-key: ${{secrets.MAVEN_GPG_KEY}}
-      
+          gpg-private-key: ${{secrets.CODESGIGN_PGP_KEY}}
+          gpg-passphrase: PASSPHRASE
+
       - name: "Maven deploy maven central"
         run: mvn deploy --batch-mode -D skipTests --activate-profiles central --no-transfer-progress
-        env: 
+        env:
           MAVEN_USERNAME: ${{secrets.MAVEN_TOKEN_USER}}
           MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
+          PASSPHRASE: ${{secrets.CODESIGN_PGP_PASSPHRASE}}
 
       - name: Setup github packages
         uses: actions/setup-java@v4
@@ -54,7 +56,7 @@ jobs:
         run: mvn deploy --batch-mode -D skipTests --activate-profiles github --no-transfer-progress
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: "Tag release and rev version"
         run: |
           # tagging release:
