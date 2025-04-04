@@ -17,6 +17,7 @@ public class ScaniiTarget {
   public static final ScaniiTarget EU2 = new ScaniiTarget("https://api-eu2.scanii.com");
   public static final ScaniiTarget AP1 = new ScaniiTarget("https://api-ap1.scanii.com");
   public static final ScaniiTarget AP2 = new ScaniiTarget("https://api-ap2.scanii.com");
+  public static final ScaniiTarget CA1 = new ScaniiTarget("https://api-ca1.scanii.com");
 
   private final URI endpoint;
 
@@ -25,7 +26,7 @@ public class ScaniiTarget {
   }
 
   protected static List<ScaniiTarget> all() {
-    return Stream.of(AUTO, US1, EU1, EU2, AP1, AP2).collect(Collectors.toList());
+    return Stream.of(AUTO, US1, EU1, EU2, AP1, AP2, CA1).collect(Collectors.toList());
   }
 
   public String resolve(String path) {
