@@ -1,4 +1,6 @@
 # Changelog
+## v6.1.0
+* Added support for the CA1 Region
 ## v6.0.0
 * Bumped Apache HTTP client dependency to v5 changing, slightly, our API contract
 * Tightened access to some internal classes
