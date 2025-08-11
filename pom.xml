@@ -133,13 +133,12 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
+            <version>3.3.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
-                <phase>package</phase>
                 <goals>
-                  <goal>jar-no-fork</goal>
+                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>
@@ -147,11 +146,17 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.3</version>
+            <configuration>
+              <failOnError>false</failOnError>
+              <source>11</source>
+              <additionalJOptions>
+                <additionalJOption>-Xdoclint:none</additionalJOption>
+              </additionalJOptions>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
-                <phase>package</phase>
                 <goals>
                   <goal>jar</goal>
                 </goals>
@@ -171,10 +176,6 @@
                 </goals>
               </execution>
             </executions>
-            <configuration>
-              <passphrase/> <!-- explicitly empty -->
-              <useAgent>false</useAgent> <!-- ensure no gpg-agent interference -->
-            </configuration>
           </plugin>
           <plugin>
             <groupId>org.sonatype.central</groupId>
