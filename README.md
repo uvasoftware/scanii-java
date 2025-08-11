@@ -1,4 +1,4 @@
-### A pure Java interface to the Scanii content processing service - https://scanii.com
+### A pure Java interface to the Scanii content processing service - https://www.scanii.com
 
 ### How to use this client
 

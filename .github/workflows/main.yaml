@@ -39,7 +39,7 @@ jobs:
           gpg-passphrase: PASSPHRASE
 
       - name: "Maven deploy maven central"
-        run: mvn deploy --batch-mode -D skipTests --activate-profiles central --no-transfer-progress
+        run: mvn deploy --batch-mode -DskipTests --activate-profiles central --no-transfer-progress
         env:
           MAVEN_USERNAME: ${{secrets.MAVEN_TOKEN_USER}}
           MAVEN_TOKEN: ${{secrets.MAVEN_TOKEN}}
@@ -53,7 +53,7 @@ jobs:
           distribution: "corretto"
 
       - name: "Maven deploy github packages"
-        run: mvn deploy --batch-mode -D skipTests --activate-profiles github --no-transfer-progress
+        run: mvn deploy --batch-mode -DskipTests --activate-profiles github --no-transfer-progress
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
