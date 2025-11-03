@@ -80,7 +80,7 @@ class ScaniiClientTest extends IntegrationTest {
     ScaniiProcessingResult result;
 
     // simple processing clean
-    result = client.process(Systems.randomFile(1024), new HashMap<String, String>() {{
+    result = client.process(Systems.randomFile(1024), new HashMap<>() {{
       put("foo", "bar");
     }});
     Assertions.assertNotNull(result.getResourceId());
@@ -96,7 +96,7 @@ class ScaniiClientTest extends IntegrationTest {
     FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
 
     // simple processing clean
-    result = client.process(is, new HashMap<String, String>() {{
+    result = client.process(is, new HashMap<>() {{
       put("foo", "bar");
     }});
     Assertions.assertNotNull(result.getResourceId());
@@ -109,7 +109,7 @@ class ScaniiClientTest extends IntegrationTest {
     ScaniiProcessingResult result;
 
     // simple processing clean
-    result = client.process(Systems.randomFile(1024), "https://httpbin.org/post", new HashMap<String, String>() {{
+    result = client.process(Systems.randomFile(1024), "https://httpbin.org/post", new HashMap<>() {{
       put("foo", "bar");
     }});
     Assertions.assertNotNull(result.getResourceId());
@@ -125,7 +125,7 @@ class ScaniiClientTest extends IntegrationTest {
     FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
 
     // simple processing clean
-    result = client.process(is, "https://httpbin.org/post", new HashMap<String, String>() {{
+    result = client.process(is, "https://httpbin.org/post", new HashMap<>() {{
       put("foo", "bar");
     }});
     Assertions.assertNotNull(result.getResourceId());
@@ -181,7 +181,7 @@ class ScaniiClientTest extends IntegrationTest {
 
   @Test
   void testProcessAsyncWithMetadata() throws Exception {
-    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), new HashMap<String, String>() {{
+    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), new HashMap<>() {{
       put("foo", "bar");
     }});
 
@@ -199,7 +199,7 @@ class ScaniiClientTest extends IntegrationTest {
 
     FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
 
-    ScaniiPendingResult result = client.processAsync(is, new HashMap<String, String>() {{
+    ScaniiPendingResult result = client.processAsync(is, new HashMap<>() {{
       put("foo", "bar");
     }});
 
@@ -211,7 +211,7 @@ class ScaniiClientTest extends IntegrationTest {
 
   @Test
   void testProcessAsyncWithMetadataAndCallback() throws Exception {
-    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), "https://httpbin.org/post", new HashMap<String, String>() {{
+    ScaniiPendingResult result = client.processAsync(Systems.randomFile(1024), "https://httpbin.org/post", new HashMap<>() {{
       put("foo", "bar");
     }});
 
@@ -227,7 +227,7 @@ class ScaniiClientTest extends IntegrationTest {
 
     FileInputStream is = new FileInputStream(Systems.randomFile(1024).toFile());
 
-    ScaniiPendingResult result = client.processAsync(is, "https://httpbin.org/post", new HashMap<String, String>() {{
+    ScaniiPendingResult result = client.processAsync(is, "https://httpbin.org/post", new HashMap<>() {{
       put("foo", "bar");
     }});
 
@@ -293,7 +293,7 @@ class ScaniiClientTest extends IntegrationTest {
   @Test
   void testFetchWithMetadata() throws Exception {
 
-    ScaniiPendingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", new HashMap<String, String>() {{
+    ScaniiPendingResult result = client.fetch("https://scanii.s3.amazonaws.com/eicarcom2.zip", "http://google.com", new HashMap<>() {{
       put("foo", "bar");
     }});
     Assertions.assertNotNull(result.getResourceId());
@@ -372,8 +372,16 @@ class ScaniiClientTest extends IntegrationTest {
     Assertions.assertTrue(account.getStartingBalance() > 0);
     Assertions.assertNotNull(account.getCreationDate());
     Assertions.assertNotNull(account.getModificationDate());
-    Assertions.assertTrue(account.getUsers().size() > 0);
-    Assertions.assertTrue(account.getKeys().size() > 0);
+    Assertions.assertFalse(account.getUsers().isEmpty());
+    Assertions.assertFalse(account.getKeys().isEmpty());
+    Assertions.assertFalse(account.getKeys().isEmpty());
+
+    var firstKey = account.getKeys().values().stream().findFirst().orElseThrow();
+    Assertions.assertNotNull(firstKey.getCreationDate());
+    Assertions.assertNotNull(firstKey.getLastSeenDate());
+    Assertions.assertNotNull(firstKey.getDetectionCategoriesEnabled());
+
+
   }
 
   @Test
