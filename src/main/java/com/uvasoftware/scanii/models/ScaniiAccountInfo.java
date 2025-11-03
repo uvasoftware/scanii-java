@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("unused")
 public class ScaniiAccountInfo extends ScaniiResult {
   @JsonProperty("name")
   private String name;
@@ -113,7 +114,7 @@ public class ScaniiAccountInfo extends ScaniiResult {
       '}';
   }
 
-  private static class User {
+  public static class User {
     @JsonProperty("creation_date")
     private Instant creationDate;
     @JsonProperty("last_login_date")
@@ -136,7 +137,7 @@ public class ScaniiAccountInfo extends ScaniiResult {
     }
   }
 
-  private static class ApiKey {
+  public static class ApiKey {
     @JsonProperty("active")
     private boolean active;
     @JsonProperty("creation_date")

@@ -31,9 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Thread safe client to the Scanii content processing service.
- * Please note that this client does not throw checked exceptions, all exceptions are wrapped around a ScaniiException that extends RuntimeException
+ * Please note that this client does not throw checked exceptions; all exceptions are wrapped around a ScaniiException that extends RuntimeException
  *
- * @see <a href="http://docs.scanii.com/v2.1/resources.html">http://docs.scanii.com/v2.1/resources.html</a>
+ * @see <a href="https://uvasoftware.github.io/openapi/v22/">spec</a>
  */
 public class DefaultScaniiClient implements ScaniiClient {
   private static final Logger LOG = Loggers.build();
@@ -85,7 +85,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new IllegalArgumentException("content path does not exist");
     }
 
-    HttpPost req = new HttpPost(target.resolve("/v2.1/files"));
+    HttpPost req = new HttpPost(target.resolve("/v2.2/files"));
     buildMultiPart(content, callback, metadata, req);
 
     return processResponse(req);
@@ -97,7 +97,7 @@ public class DefaultScaniiClient implements ScaniiClient {
     Objects.requireNonNull(content, "content stream cannot be null");
     Objects.requireNonNull(metadata, "metadata cannot be null");
 
-    HttpPost req = new HttpPost(target.resolve("/v2.1/files"));
+    HttpPost req = new HttpPost(target.resolve("/v2.2/files"));
     buildMultiPart(content, callback, metadata, req);
 
     return processResponse(req);
@@ -133,7 +133,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new IllegalArgumentException("content path does not exist");
     }
 
-    HttpPost req = new HttpPost(target.resolve("/v2.1/files/async"));
+    HttpPost req = new HttpPost(target.resolve("/v2.2/files/async"));
     buildMultiPart(content, callback, metadata, req);
 
     return processAsyncResponse(req);
@@ -166,7 +166,7 @@ public class DefaultScaniiClient implements ScaniiClient {
     Objects.requireNonNull(content, "content stream cannot be null");
     Objects.requireNonNull(metadata, "metadata cannot be null");
 
-    HttpPost req = new HttpPost(target.resolve("/v2.1/files/async"));
+    HttpPost req = new HttpPost(target.resolve("/v2.2/files/async"));
     buildMultiPart(content, callback, metadata, req);
 
     return processAsyncResponse(req);
@@ -187,7 +187,7 @@ public class DefaultScaniiClient implements ScaniiClient {
   public Optional<ScaniiProcessingResult> retrieve(String id) {
     Objects.requireNonNull(id, "resource id cannot be null");
 
-    HttpGet req = new HttpGet(target.resolve("/v2.1/files/" + id));
+    HttpGet req = new HttpGet(target.resolve("/v2.2/files/" + id));
     addHeaders(req);
 
     try {
@@ -227,7 +227,7 @@ public class DefaultScaniiClient implements ScaniiClient {
     Objects.requireNonNull(location, "content location cannot be null");
     Objects.requireNonNull(metadata, "metadata cannot be null");
 
-    HttpPost req = new HttpPost(target.resolve("/v2.1/files/fetch"));
+    HttpPost req = new HttpPost(target.resolve("/v2.2/files/fetch"));
     addHeaders(req);
 
     List<NameValuePair> fields = new ArrayList<>();
@@ -269,7 +269,7 @@ public class DefaultScaniiClient implements ScaniiClient {
 
   @Override
   public boolean ping() {
-    HttpGet req = new HttpGet(target.resolve("/v2.1/ping"));
+    HttpGet req = new HttpGet(target.resolve("/v2.2/ping"));
     addHeaders(req);
 
     try {
@@ -286,7 +286,7 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new IllegalArgumentException("timeout must be a positive number");
     }
 
-    HttpPost req = new HttpPost(target.resolve("/v2.1/auth/tokens"));
+    HttpPost req = new HttpPost(target.resolve("/v2.2/auth/tokens"));
     addHeaders(req);
 
     List<NameValuePair> fields = new ArrayList<>();
@@ -322,7 +322,7 @@ public class DefaultScaniiClient implements ScaniiClient {
   public boolean deleteAuthToken(String id) {
     Objects.requireNonNull(id, "id cannot be null");
 
-    HttpDelete req = new HttpDelete(target.resolve("/v2.1/auth/tokens/" + id));
+    HttpDelete req = new HttpDelete(target.resolve("/v2.2/auth/tokens/" + id));
     addHeaders(req);
 
     try {
@@ -343,7 +343,7 @@ public class DefaultScaniiClient implements ScaniiClient {
   public ScaniiAuthToken retrieveAuthToken(String id) {
     Objects.requireNonNull(id, "id cannot be null");
 
-    HttpGet req = new HttpGet(target.resolve("/v2.1/auth/tokens/" + id));
+    HttpGet req = new HttpGet(target.resolve("/v2.2/auth/tokens/" + id));
     addHeaders(req);
 
     try {
@@ -369,7 +369,7 @@ public class DefaultScaniiClient implements ScaniiClient {
 
   @Override
   public ScaniiAccountInfo retrieveAccountInfo() {
-    HttpGet req = new HttpGet(target.resolve("/v2.1/account.json"));
+    HttpGet req = new HttpGet(target.resolve("/v2.2/account.json"));
     addHeaders(req);
 
     try {
