@@ -30,4 +30,57 @@ class ScaniiClientsTest {
     Assertions.assertNotNull(client);
     Assertions.assertEquals(hc, ((DefaultScaniiClient) client).getHttpClient());
   }
+
+  @Test
+  void builderWithCredentials() {
+    ScaniiClient client = ScaniiClients.builder()
+      .target(ScaniiTarget.EU1)
+      .credentials("key", "secret")
+      .build();
+    Assertions.assertNotNull(client);
+  }
+
+  @Test
+  void builderWithAuthToken() {
+    ScaniiAuthToken token = new ScaniiAuthToken();
+    token.setResourceId("token-123");
+    ScaniiClient client = ScaniiClients.builder()
+      .target(ScaniiTarget.US1)
+      .authToken(token)
+      .build();
+    Assertions.assertNotNull(client);
+  }
+
+  @Test
+  void builderWithCustomUserAgent() {
+    ScaniiClient client = ScaniiClients.builder()
+      .credentials("key", "secret")
+      .userAgent("my-app/2.0")
+      .build();
+    Assertions.assertNotNull(client);
+  }
+
+  @Test
+  void builderWithCustomHttpClient() {
+    HttpClient hc = HttpClient.newHttpClient();
+    ScaniiClient client = ScaniiClients.builder()
+      .credentials("key", "secret")
+      .httpClient(hc)
+      .build();
+    Assertions.assertNotNull(client);
+    Assertions.assertEquals(hc, ((DefaultScaniiClient) client).getHttpClient());
+  }
+
+  @Test
+  void builderDefaultsToAutoTarget() {
+    ScaniiClient client = ScaniiClients.builder()
+      .credentials("key", "secret")
+      .build();
+    Assertions.assertNotNull(client);
+  }
+
+  @Test
+  void builderShouldFailWithoutCredentials() {
+    Assertions.assertThrows(IllegalStateException.class, () -> ScaniiClients.builder().build());
+  }
 }
