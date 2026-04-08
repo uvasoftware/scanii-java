@@ -5,23 +5,13 @@ import com.uvasoftware.scanii.ScaniiClients;
 import com.uvasoftware.scanii.ScaniiException;
 import com.uvasoftware.scanii.ScaniiTarget;
 import com.uvasoftware.scanii.models.*;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
-import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,12 +26,11 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://uvasoftware.github.io/openapi/v22/">spec</a>
  */
 public class DefaultScaniiClient implements ScaniiClient {
-  private static final Logger LOG = Loggers.build();
+  private static final System.Logger LOG = System.getLogger(DefaultScaniiClient.class.getName());
   private final HttpClient httpClient;
   private final ScaniiTarget target;
   private final String authHeader;
   private final String userAgentHeader;
-  private final ErrorExtractor errorExtractor;
 
   public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient) {
     if (key == null || key.isEmpty()) {
@@ -60,9 +49,8 @@ public class DefaultScaniiClient implements ScaniiClient {
     this.httpClient = httpClient;
     this.authHeader = "Basic " + Base64.getEncoder().encodeToString((key + ":" + secret).getBytes(StandardCharsets.UTF_8));
     this.userAgentHeader = HttpHeaders.UA + "/v" + ScaniiClients.VERSION;
-    this.errorExtractor = new ErrorExtractor();
 
-    LOG.debug("creating client using key {} against target {}", key, target);
+    LOG.log(System.Logger.Level.DEBUG, "creating client using key {0} against target {1}", key, target);
 
   }
 
@@ -85,8 +73,8 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new IllegalArgumentException("content path does not exist");
     }
 
-    HttpPost req = new HttpPost(target.resolve("/v2.2/files"));
-    buildMultiPart(content, callback, metadata, req);
+    MultipartBodyPublisher multipart = buildMultiPart(content, callback, metadata);
+    HttpRequest req = buildPost(target.resolve("/v2.2/files"), multipart);
 
     return processResponse(req);
   }
@@ -97,8 +85,8 @@ public class DefaultScaniiClient implements ScaniiClient {
     Objects.requireNonNull(content, "content stream cannot be null");
     Objects.requireNonNull(metadata, "metadata cannot be null");
 
-    HttpPost req = new HttpPost(target.resolve("/v2.2/files"));
-    buildMultiPart(content, callback, metadata, req);
+    MultipartBodyPublisher multipart = buildMultiPart(content, callback, metadata);
+    HttpRequest req = buildPost(target.resolve("/v2.2/files"), multipart);
 
     return processResponse(req);
   }
@@ -133,32 +121,23 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new IllegalArgumentException("content path does not exist");
     }
 
-    HttpPost req = new HttpPost(target.resolve("/v2.2/files/async"));
-    buildMultiPart(content, callback, metadata, req);
+    MultipartBodyPublisher multipart = buildMultiPart(content, callback, metadata);
+    HttpRequest req = buildPost(target.resolve("/v2.2/files/async"), multipart);
 
     return processAsyncResponse(req);
   }
 
-  private ScaniiPendingResult processAsyncResponse(HttpPost req) {
-    try {
+  private ScaniiPendingResult processAsyncResponse(HttpRequest req) {
+    HttpResponse<String> response = send(req);
 
-      //noinspection Duplicates
-      return httpClient.execute(req, response -> {
-        String responseEntity = EntityUtils.toString(response.getEntity());
-
-        if (response.getCode() != 202) {
-          parseAndThrowError(response, responseEntity);
-        }
-
-        ScaniiPendingResult result = JSON.load(responseEntity, ScaniiPendingResult.class);
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-        return result;
-
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+    if (response.statusCode() != 202) {
+      parseAndThrowError(response);
     }
+
+    ScaniiPendingResult result = JSON.load(response.body(), ScaniiPendingResult.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+    return result;
   }
 
   @Override
@@ -166,8 +145,8 @@ public class DefaultScaniiClient implements ScaniiClient {
     Objects.requireNonNull(content, "content stream cannot be null");
     Objects.requireNonNull(metadata, "metadata cannot be null");
 
-    HttpPost req = new HttpPost(target.resolve("/v2.2/files/async"));
-    buildMultiPart(content, callback, metadata, req);
+    MultipartBodyPublisher multipart = buildMultiPart(content, callback, metadata);
+    HttpRequest req = buildPost(target.resolve("/v2.2/files/async"), multipart);
 
     return processAsyncResponse(req);
   }
@@ -187,29 +166,18 @@ public class DefaultScaniiClient implements ScaniiClient {
   public Optional<ScaniiProcessingResult> retrieve(String id) {
     Objects.requireNonNull(id, "resource id cannot be null");
 
-    HttpGet req = new HttpGet(target.resolve("/v2.2/files/" + id));
-    addHeaders(req);
+    HttpRequest req = buildGet(target.resolve("/v2.2/files/" + id));
+    HttpResponse<String> response = send(req);
 
-    try {
-      return httpClient.execute(req, response -> {
-
-        if (response.getCode() == 404) {
-          return Optional.empty();
-        }
-
-        String responseEntity = EntityUtils.toString(response.getEntity());
-
-        ScaniiProcessingResult result = JSON.load(responseEntity, ScaniiProcessingResult.class);
-
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-
-        return Optional.of(result);
-
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+    if (response.statusCode() == 404) {
+      return Optional.empty();
     }
+
+    ScaniiProcessingResult result = JSON.load(response.body(), ScaniiProcessingResult.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+
+    return Optional.of(result);
   }
 
   @Override
@@ -227,56 +195,41 @@ public class DefaultScaniiClient implements ScaniiClient {
     Objects.requireNonNull(location, "content location cannot be null");
     Objects.requireNonNull(metadata, "metadata cannot be null");
 
-    HttpPost req = new HttpPost(target.resolve("/v2.2/files/fetch"));
-    addHeaders(req);
-
-    List<NameValuePair> fields = new ArrayList<>();
+    List<String> fields = new ArrayList<>();
 
     if (callback != null) {
-      fields.add(new BasicNameValuePair("callback", callback));
+      fields.add(encode("callback") + "=" + encode(callback));
     }
 
-    fields.add(new BasicNameValuePair("location", location));
+    fields.add(encode("location") + "=" + encode(location));
 
-    metadata.forEach((k, v) -> {
-      fields.add(new BasicNameValuePair(String.format("metadata[%s]", k), v));
-    });
+    metadata.forEach((k, v) -> fields.add(encode(String.format("metadata[%s]", k)) + "=" + encode(v)));
 
-    try {
-      UrlEncodedFormEntity entity = new UrlEncodedFormEntity(fields);
-      req.setEntity(entity);
+    String formBody = String.join("&", fields);
 
-      //noinspection Duplicates
-      return httpClient.execute(req, response -> {
-        String responseEntity = EntityUtils.toString(response.getEntity());
+    HttpRequest req = newRequestBuilder(target.resolve("/v2.2/files/fetch"))
+      .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+      .POST(HttpRequest.BodyPublishers.ofString(formBody))
+      .build();
 
-        if (response.getCode() != 202) {
-          parseAndThrowError(response, responseEntity);
-        }
+    HttpResponse<String> response = send(req);
 
-        ScaniiPendingResult result = JSON.load(responseEntity, ScaniiPendingResult.class);
-
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-
-        return result;
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+    if (response.statusCode() != 202) {
+      parseAndThrowError(response);
     }
 
+    ScaniiPendingResult result = JSON.load(response.body(), ScaniiPendingResult.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+
+    return result;
   }
 
   @Override
   public boolean ping() {
-    HttpGet req = new HttpGet(target.resolve("/v2.2/ping"));
-    addHeaders(req);
-
-    try {
-      return httpClient.execute(req, response -> response.getCode() == 200);
-    } catch (IOException e) {
-      throw new ScaniiException(e);
-    }
+    HttpRequest req = buildGet(target.resolve("/v2.2/ping"));
+    HttpResponse<String> response = send(req);
+    return response.statusCode() == 200;
   }
 
   @Override
@@ -286,203 +239,171 @@ public class DefaultScaniiClient implements ScaniiClient {
       throw new IllegalArgumentException("timeout must be a positive number");
     }
 
-    HttpPost req = new HttpPost(target.resolve("/v2.2/auth/tokens"));
-    addHeaders(req);
+    List<String> fields = new ArrayList<>();
+    fields.add(encode("timeout") + "=" + encode(String.valueOf(timeoutUnit.toSeconds(timeout))));
 
-    List<NameValuePair> fields = new ArrayList<>();
+    String formBody = String.join("&", fields);
 
-    fields.add(new BasicNameValuePair("timeout", String.valueOf(timeoutUnit.toSeconds(timeout))));
+    HttpRequest req = newRequestBuilder(target.resolve("/v2.2/auth/tokens"))
+      .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+      .POST(HttpRequest.BodyPublishers.ofString(formBody))
+      .build();
 
-    try {
-      UrlEncodedFormEntity entity = new UrlEncodedFormEntity(fields);
-      req.setEntity(entity);
+    HttpResponse<String> response = send(req);
 
-      //noinspection Duplicates
-      return httpClient.execute(req, response -> {
-        String responseEntity = EntityUtils.toString(response.getEntity());
-
-        if (response.getCode() != 201) {
-          parseAndThrowError(response, responseEntity);
-        }
-
-        ScaniiAuthToken result = JSON.load(responseEntity, ScaniiAuthToken.class);
-
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-
-        return result;
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+    if (response.statusCode() != 201) {
+      parseAndThrowError(response);
     }
 
+    ScaniiAuthToken result = JSON.load(response.body(), ScaniiAuthToken.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+
+    return result;
   }
 
   @Override
   public boolean deleteAuthToken(String id) {
     Objects.requireNonNull(id, "id cannot be null");
 
-    HttpDelete req = new HttpDelete(target.resolve("/v2.2/auth/tokens/" + id));
-    addHeaders(req);
+    HttpRequest req = newRequestBuilder(target.resolve("/v2.2/auth/tokens/" + id))
+      .DELETE()
+      .build();
 
-    try {
-      //noinspection Duplicates
-      return httpClient.execute(req, response -> {
-        if (response.getCode() != 204) {
-          String responseEntity = EntityUtils.toString(response.getEntity());
-          parseAndThrowError(response, responseEntity);
-        }
-        return true;
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+    HttpResponse<String> response = send(req);
+
+    if (response.statusCode() != 204) {
+      parseAndThrowError(response);
     }
+    return true;
   }
 
   @Override
   public ScaniiAuthToken retrieveAuthToken(String id) {
     Objects.requireNonNull(id, "id cannot be null");
 
-    HttpGet req = new HttpGet(target.resolve("/v2.2/auth/tokens/" + id));
-    addHeaders(req);
+    HttpRequest req = buildGet(target.resolve("/v2.2/auth/tokens/" + id));
+    HttpResponse<String> response = send(req);
 
-    try {
-      return httpClient.execute(req, response -> {
-        String responseEntity = EntityUtils.toString(response.getEntity());
-
-        if (response.getCode() != 200) {
-          parseAndThrowError(response, responseEntity);
-        }
-
-        ScaniiAuthToken result = JSON.load(responseEntity, ScaniiAuthToken.class);
-
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-
-        return result;
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+    if (response.statusCode() != 200) {
+      parseAndThrowError(response);
     }
 
+    ScaniiAuthToken result = JSON.load(response.body(), ScaniiAuthToken.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+
+    return result;
   }
 
   @Override
   public ScaniiAccountInfo retrieveAccountInfo() {
-    HttpGet req = new HttpGet(target.resolve("/v2.2/account.json"));
-    addHeaders(req);
+    HttpRequest req = buildGet(target.resolve("/v2.2/account.json"));
+    HttpResponse<String> response = send(req);
 
+    if (response.statusCode() != 200) {
+      parseAndThrowError(response);
+    }
+
+    ScaniiAccountInfo result = JSON.load(response.body(), ScaniiAccountInfo.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+
+    return result;
+  }
+
+  private HttpRequest.Builder newRequestBuilder(String uri) {
+    return HttpRequest.newBuilder(URI.create(uri))
+      .header(HttpHeaders.AUTHORIZATION, authHeader)
+      .header(HttpHeaders.USER_AGENT, userAgentHeader);
+  }
+
+  private HttpRequest buildGet(String uri) {
+    return newRequestBuilder(uri).GET().build();
+  }
+
+  private HttpRequest buildPost(String uri, MultipartBodyPublisher multipart) {
+    return newRequestBuilder(uri)
+      .header(HttpHeaders.CONTENT_TYPE, multipart.contentType())
+      .POST(multipart.build())
+      .build();
+  }
+
+  private HttpResponse<String> send(HttpRequest request) {
     try {
-      return httpClient.execute(req, response -> {
-        String responseEntity = EntityUtils.toString(response.getEntity());
-
-        if (response.getCode() != 200) {
-          parseAndThrowError(response, responseEntity);
-        }
-
-        ScaniiAccountInfo result = JSON.load(responseEntity, ScaniiAccountInfo.class);
-
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-
-        return result;
-      });
+      return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     } catch (IOException e) {
+      throw new ScaniiException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new ScaniiException(e);
     }
   }
 
-  private void addHeaders(HttpUriRequest request) {
-    request.addHeader(new BasicHeader(HttpHeaders.AUTHORIZATION, authHeader));
-    request.addHeader(new BasicHeader(HttpHeaders.USER_AGENT, userAgentHeader));
-  }
+  private void extractRequestMetadata(ScaniiResult result, HttpResponse<String> response) {
+    result.setStatusCode(response.statusCode());
 
-  private void extractRequestMetadata(ScaniiResult result, HttpResponse response) {
-
-    result.setStatusCode(response.getCode());
-
-    if (response.containsHeader(HttpHeaders.X_REQUEST_HEADER)) {
-      result.setRequestId(response.getLastHeader(HttpHeaders.X_REQUEST_HEADER).getValue());
-    }
-
-    if (response.containsHeader(HttpHeaders.X_HOST_HEADER)) {
-      result.setHostId(response.getLastHeader(HttpHeaders.X_HOST_HEADER).getValue());
-
-    }
-
-    if (response.containsHeader(HttpHeaders.LOCATION)) {
-      result.setResourceLocation(response.getLastHeader(HttpHeaders.LOCATION).getValue());
-    }
+    response.headers().firstValue(HttpHeaders.X_REQUEST_HEADER).ifPresent(result::setRequestId);
+    response.headers().firstValue(HttpHeaders.X_HOST_HEADER).ifPresent(result::setHostId);
+    response.headers().firstValue(HttpHeaders.LOCATION).ifPresent(result::setResourceLocation);
   }
 
   public HttpClient getHttpClient() {
     return httpClient;
   }
 
-  private void parseAndThrowError(HttpResponse response, String responseEntity) {
-    if (response.getFirstHeader(HttpHeaders.CONTENT_TYPE) != null && response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue().equals("application/json")) {
-      throw new ScaniiException(response.getCode(), errorExtractor.extract(responseEntity));
+  private void parseAndThrowError(HttpResponse<String> response) {
+    String contentType = response.headers().firstValue(HttpHeaders.CONTENT_TYPE).orElse("");
+    if (contentType.equals("application/json")) {
+      Map<String, Object> js = JSON.load(response.body());
+      String error = js.containsKey("error") ? js.get("error").toString() : response.body();
+      throw new ScaniiException(response.statusCode(), error);
     } else {
-      throw new ScaniiException(response.getCode(), responseEntity);
-    }
-
-  }
-
-  private ScaniiProcessingResult processResponse(HttpPost req) {
-    try {
-      return httpClient.execute(req, response -> {
-
-        String responseEntity = EntityUtils.toString(response.getEntity());
-
-        if (response.getCode() != 201) {
-          parseAndThrowError(response, responseEntity);
-        }
-
-        ScaniiProcessingResult result = JSON.load(responseEntity, ScaniiProcessingResult.class);
-        extractRequestMetadata(result, response);
-        result.setRawResponse(responseEntity);
-
-        return result;
-
-      });
-    } catch (IOException e) {
-      throw new ScaniiException(e);
+      throw new ScaniiException(response.statusCode(), response.body());
     }
   }
 
-  private void buildMultiPart(Path content, String callback, Map<String, String> metadata, HttpPost req) {
-    addHeaders(req);
+  private ScaniiProcessingResult processResponse(HttpRequest req) {
+    HttpResponse<String> response = send(req);
 
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
-      .addBinaryBody("file", content.toFile());
-
-    metadata.forEach((k, v) -> {
-      multipartEntityBuilder.addTextBody(String.format("metadata[%s]", k), v);
-    });
-
-    if (callback != null) {
-      multipartEntityBuilder.addTextBody("callback", callback, ContentType.TEXT_PLAIN);
+    if (response.statusCode() != 201) {
+      parseAndThrowError(response);
     }
 
+    ScaniiProcessingResult result = JSON.load(response.body(), ScaniiProcessingResult.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
 
-    req.setEntity(multipartEntityBuilder.build());
+    return result;
   }
 
-  private void buildMultiPart(InputStream content, String callback, Map<String, String> metadata, HttpPost req) {
-    addHeaders(req);
-
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
+  private MultipartBodyPublisher buildMultiPart(Path content, String callback, Map<String, String> metadata) {
+    MultipartBodyPublisher multipart = new MultipartBodyPublisher()
       .addBinaryBody("file", content);
 
-    metadata.forEach((k, v) -> {
-      multipartEntityBuilder.addTextBody(String.format("metadata[%s]", k), v);
-    });
+    metadata.forEach((k, v) -> multipart.addTextBody(String.format("metadata[%s]", k), v));
 
     if (callback != null) {
-      multipartEntityBuilder.addTextBody("callback", callback, ContentType.TEXT_PLAIN);
+      multipart.addTextBody("callback", callback);
     }
 
+    return multipart;
+  }
 
-    req.setEntity(multipartEntityBuilder.build());
+  private MultipartBodyPublisher buildMultiPart(InputStream content, String callback, Map<String, String> metadata) {
+    MultipartBodyPublisher multipart = new MultipartBodyPublisher()
+      .addBinaryBody("file", content);
+
+    metadata.forEach((k, v) -> multipart.addTextBody(String.format("metadata[%s]", k), v));
+
+    if (callback != null) {
+      multipart.addTextBody("callback", callback);
+    }
+
+    return multipart;
+  }
+
+  private static String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 }

@@ -10,10 +10,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -27,12 +26,7 @@ class ScaniiClientTest extends IntegrationTest {
     SECRET = System.getenv("SCANII_CREDS").split(":")[1];
   }
 
-  private final Path eicarFile;
   private ScaniiClient client;
-
-  ScaniiClientTest() throws IOException {
-    this.eicarFile = Files.write(Files.createTempFile(null, null), EICAR.SIGNATURE.getBytes());
-  }
 
   @BeforeEach
   void before() {
@@ -56,8 +50,8 @@ class ScaniiClientTest extends IntegrationTest {
     Assertions.assertTrue(result.getFindings().isEmpty());
     System.out.println(result);
 
-    // with findings
-    result = client.process(eicarFile);
+    // with findings (EICAR decoded in-memory, never written to disk)
+    result = client.process(new ByteArrayInputStream(EICAR.decode()));
     Assertions.assertNotNull(result.getResourceId());
     Assertions.assertNotNull(result.getChecksum());
     Assertions.assertNotNull(result.getResourceLocation());
@@ -137,9 +131,7 @@ class ScaniiClientTest extends IntegrationTest {
   @Test
   void shouldThrowErrorsIfInvalidPost() {
     // empty file:
-    Assertions.assertThrows(ScaniiException.class, () -> {
-      client.process(Files.createTempFile(null, null));
-    });
+    Assertions.assertThrows(ScaniiException.class, () -> client.process(Files.createTempFile(null, null)));
   }
 
   @Test
@@ -147,9 +139,7 @@ class ScaniiClientTest extends IntegrationTest {
     ScaniiClient client = ScaniiClients.createDefault("foo", "bar");
 
     // empty file:
-    Assertions.assertThrows(ScaniiException.class, () -> {
-      client.process(Files.createTempFile(null, null));
-    });
+    Assertions.assertThrows(ScaniiException.class, () -> client.process(Files.createTempFile(null, null)));
 
   }
 
@@ -342,7 +332,7 @@ class ScaniiClientTest extends IntegrationTest {
   void testDeleteAuthToken() {
     ScaniiAuthToken result = client.createAuthToken(1, TimeUnit.HOURS);
     Assertions.assertTrue(client.deleteAuthToken(result.getResourceId()));
-    Assertions.assertThrows(ScaniiException.class, ()->client.deleteAuthToken("abc"));
+    Assertions.assertThrows(ScaniiException.class, () -> client.deleteAuthToken("abc"));
   }
 
   @Test

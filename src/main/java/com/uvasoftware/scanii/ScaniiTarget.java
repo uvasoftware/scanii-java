@@ -2,8 +2,6 @@ package com.uvasoftware.scanii;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Scanii Resource targets so you can control which api version and endpoint you would like your client to utilize.
@@ -26,7 +24,7 @@ public class ScaniiTarget {
   }
 
   protected static List<ScaniiTarget> all() {
-    return Stream.of(AUTO, US1, EU1, EU2, AP1, AP2, CA1).collect(Collectors.toList());
+    return List.of(AUTO, US1, EU1, EU2, AP1, AP2, CA1);
   }
 
   public String resolve(String path) {
