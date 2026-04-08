@@ -32,7 +32,7 @@ public class DefaultScaniiClient implements ScaniiClient {
   private final String authHeader;
   private final String userAgentHeader;
 
-  public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient) {
+  public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient, String userAgent) {
     if (key == null || key.isEmpty()) {
       throw new IllegalArgumentException("key must not be null or empty");
     }
@@ -48,7 +48,11 @@ public class DefaultScaniiClient implements ScaniiClient {
     this.target = target;
     this.httpClient = httpClient;
     this.authHeader = "Basic " + Base64.getEncoder().encodeToString((key + ":" + secret).getBytes(StandardCharsets.UTF_8));
-    this.userAgentHeader = HttpHeaders.UA + "/v" + ScaniiClients.VERSION;
+
+    String defaultUA = HttpHeaders.UA + "/v" + ScaniiClients.VERSION;
+    this.userAgentHeader = (userAgent != null && !userAgent.isEmpty())
+      ? userAgent + " " + defaultUA
+      : defaultUA;
 
     LOG.log(System.Logger.Level.DEBUG, "creating client using key {0} against target {1}", key, target);
 
