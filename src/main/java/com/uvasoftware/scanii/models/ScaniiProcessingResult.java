@@ -1,7 +1,5 @@
 package com.uvasoftware.scanii.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,25 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 public class ScaniiProcessingResult extends ScaniiResult {
-  @JsonProperty("id")
   private String resourceId;
-
-  @JsonProperty("content_type")
   private String contentType;
-
-  @JsonProperty("content_length")
   private long contentLength;
-
-  @JsonProperty("findings")
   private List<String> findings = new ArrayList<>();
-
-  @JsonProperty("checksum")
   private String checksum;
-
-  @JsonProperty("creation_date")
   private Instant creationDate;
-
-  @JsonProperty("metadata")
   private Map<String, String> metadata = new HashMap<>();
 
   public String getResourceId() {

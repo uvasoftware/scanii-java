@@ -1,17 +1,10 @@
 package com.uvasoftware.scanii.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.Instant;
 
 public class ScaniiAuthToken extends ScaniiResult {
-  @JsonProperty("id")
   private String resourceId;
-
-  @JsonProperty("creation_date")
   private Instant creationDate;
-
-  @JsonProperty("expiration_date")
   private Instant expirationDate;
 
   public String getResourceId() {

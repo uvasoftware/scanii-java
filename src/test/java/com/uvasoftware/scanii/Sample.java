@@ -2,7 +2,7 @@ package com.uvasoftware.scanii;
 
 import com.uvasoftware.scanii.models.ScaniiProcessingResult;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class Sample {
   public static void main(String[] args) {
@@ -10,7 +10,7 @@ public class Sample {
     String key = args[0];
     String secret = args[1];
     ScaniiClient client = ScaniiClients.createDefault(key, secret);
-    ScaniiProcessingResult result = client.process(Paths.get(args[2]));
+    ScaniiProcessingResult result = client.process(Path.of(args[2]));
     System.out.printf("checksum: %s, content-type: %s and findings: %s%n",
       result.getChecksum(),
       result.getContentType(),

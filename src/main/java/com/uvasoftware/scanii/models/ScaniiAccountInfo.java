@@ -1,30 +1,19 @@
 package com.uvasoftware.scanii.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unused")
 public class ScaniiAccountInfo extends ScaniiResult {
-  @JsonProperty("name")
   private String name;
-  @JsonProperty("balance")
   private long balance;
-  @JsonProperty("starting_balance")
   private long startingBalance;
-  @JsonProperty("billing_email")
   private String billingEmail;
-  @JsonProperty("subscription")
   private String subscription;
-  @JsonProperty("creation_date")
   private Instant creationDate;
-  @JsonProperty("modification_date")
   private Instant modificationDate;
-  @JsonProperty("users")
   private Map<String, User> users;
-  @JsonProperty("keys")
   private Map<String, ApiKey> keys;
 
   public String getName() {
@@ -115,9 +104,7 @@ public class ScaniiAccountInfo extends ScaniiResult {
   }
 
   public static class User {
-    @JsonProperty("creation_date")
     private Instant creationDate;
-    @JsonProperty("last_login_date")
     private Instant lastLoginDate;
 
     public Instant getCreationDate() {
@@ -138,15 +125,10 @@ public class ScaniiAccountInfo extends ScaniiResult {
   }
 
   public static class ApiKey {
-    @JsonProperty("active")
     private boolean active;
-    @JsonProperty("creation_date")
     private Instant creationDate;
-    @JsonProperty("last_seen_date")
     private Instant lastSeenDate;
-    @JsonProperty("detection_categories_enabled")
     private Set<String> detectionCategoriesEnabled;
-    @JsonProperty("tags")
     private Set<String> tags;
 
     public boolean isActive() {
