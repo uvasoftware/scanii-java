@@ -10,10 +10,10 @@ class DefaultScaniiClientTest {
   @Test
   void shouldValidateCredentials() {
     // issue 65
-    Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultScaniiClient(ScaniiTarget.AP1, "", "secret", HttpClient.newHttpClient(), null));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultScaniiClient(ScaniiTarget.AP1, "", "secret", HttpClient.newHttpClient(), null, java.util.Collections.emptyMap()));
 
-    Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultScaniiClient(ScaniiTarget.AP1, null, "secret", HttpClient.newHttpClient(), null));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultScaniiClient(ScaniiTarget.AP1, null, "secret", HttpClient.newHttpClient(), null, java.util.Collections.emptyMap()));
 
-    Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultScaniiClient(ScaniiTarget.AP1, "a:b", "secret", HttpClient.newHttpClient(), null));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultScaniiClient(ScaniiTarget.AP1, "a:b", "secret", HttpClient.newHttpClient(), null, java.util.Collections.emptyMap()));
   }
 }

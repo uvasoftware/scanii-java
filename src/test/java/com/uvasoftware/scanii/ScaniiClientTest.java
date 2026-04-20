@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 class ScaniiClientTest extends IntegrationTest {
@@ -375,7 +376,7 @@ class ScaniiClientTest extends IntegrationTest {
   }
 
   @Test
-  void shouldErrorIfPingtoInvalidUrl() {
+  void shouldErrorIfPingToInvalidUrl() {
     ScaniiClient client = ScaniiClients.createDefault(new ScaniiTarget("http://example.com"), "foo", "bar");
     client.ping();
   }
