@@ -6,6 +6,8 @@ import com.uvasoftware.scanii.models.ScaniiPendingResult;
 import com.uvasoftware.scanii.models.ScaniiProcessingResult;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Execution(ExecutionMode.CONCURRENT)
 class JSONTest {
 
   @Nested

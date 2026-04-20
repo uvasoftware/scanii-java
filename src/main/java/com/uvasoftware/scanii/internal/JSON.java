@@ -51,6 +51,7 @@ class JSON {
     r.setCreationDate(instant(m, "creation_date"));
     r.setFindings(strList(m, "findings"));
     r.setMetadata(strMap(m, "metadata"));
+    r.setError(str(m, "error"));
     return r;
   }
 

@@ -14,6 +14,15 @@ public class ScaniiProcessingResult extends ScaniiResult {
   private String checksum;
   private Instant creationDate;
   private Map<String, String> metadata = new HashMap<>();
+  private String error;
+
+  public String getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
+  }
 
   public String getResourceId() {
     return resourceId;
@@ -79,7 +88,9 @@ public class ScaniiProcessingResult extends ScaniiResult {
       ", contentLength=" + contentLength +
       ", findings=" + findings +
       ", checksum='" + checksum + '\'' +
+      ", creationDate=" + creationDate +
       ", metadata=" + metadata +
+      ", error='" + error + '\'' +
       '}';
   }
 }

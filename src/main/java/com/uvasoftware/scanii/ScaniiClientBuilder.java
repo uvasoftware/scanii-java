@@ -4,6 +4,9 @@ import com.uvasoftware.scanii.internal.DefaultScaniiClient;
 import com.uvasoftware.scanii.models.ScaniiAuthToken;
 
 import java.net.http.HttpClient;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Builder for constructing a {@link ScaniiClient} with custom configuration.
@@ -24,6 +27,7 @@ public class ScaniiClientBuilder {
   private String secret;
   private HttpClient httpClient;
   private String userAgent;
+  private final Map<String, String> headers = new LinkedHashMap<>();
 
   ScaniiClientBuilder() {
   }
@@ -87,6 +91,18 @@ public class ScaniiClientBuilder {
   }
 
   /**
+   * Adds a custom HTTP header to be included in every request.
+   *
+   * @param name  the header name.
+   * @param value the header value.
+   * @return this builder.
+   */
+  public ScaniiClientBuilder header(String name, String value) {
+    this.headers.put(name, value);
+    return this;
+  }
+
+  /**
    * Builds the {@link ScaniiClient} with the configured settings.
    *
    * @return the new scanii client.
@@ -97,6 +113,6 @@ public class ScaniiClientBuilder {
       throw new IllegalStateException("credentials or authToken must be set");
     }
     HttpClient client = httpClient != null ? httpClient : HttpClient.newHttpClient();
-    return new DefaultScaniiClient(target, key, secret, client, userAgent);
+    return new DefaultScaniiClient(target, key, secret, client, userAgent, Collections.unmodifiableMap(new LinkedHashMap<>(headers)));
   }
 }

@@ -31,8 +31,9 @@ public class DefaultScaniiClient implements ScaniiClient {
   private final ScaniiTarget target;
   private final String authHeader;
   private final String userAgentHeader;
+  private final Map<String, String> customHeaders;
 
-  public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient, String userAgent) {
+  public DefaultScaniiClient(ScaniiTarget target, String key, String secret, HttpClient httpClient, String userAgent, Map<String, String> customHeaders) {
     if (key == null || key.isEmpty()) {
       throw new IllegalArgumentException("key must not be null or empty");
     }
@@ -53,6 +54,8 @@ public class DefaultScaniiClient implements ScaniiClient {
     this.userAgentHeader = (userAgent != null && !userAgent.isEmpty())
       ? userAgent + " " + defaultUA
       : defaultUA;
+
+    this.customHeaders = customHeaders;
 
     LOG.log(System.Logger.Level.DEBUG, "creating client using key {0} against target {1}", key, target);
 
@@ -317,9 +320,11 @@ public class DefaultScaniiClient implements ScaniiClient {
   }
 
   private HttpRequest.Builder newRequestBuilder(String uri) {
-    return HttpRequest.newBuilder(URI.create(uri))
+    HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(uri))
       .header(HttpHeaders.AUTHORIZATION, authHeader)
       .header(HttpHeaders.USER_AGENT, userAgentHeader);
+    customHeaders.forEach(builder::header);
+    return builder;
   }
 
   private HttpRequest buildGet(String uri) {
