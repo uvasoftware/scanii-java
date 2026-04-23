@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii.models;
+package com.scanii.models;
 
 public class ScaniiResult {
   private String rawResponse;

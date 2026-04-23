@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

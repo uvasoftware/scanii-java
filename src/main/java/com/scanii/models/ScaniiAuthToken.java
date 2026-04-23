@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii.models;
+package com.scanii.models;
 
 import java.time.Instant;
 

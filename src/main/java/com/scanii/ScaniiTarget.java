@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
 import java.net.URI;
 import java.util.List;

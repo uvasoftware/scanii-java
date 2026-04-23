@@ -1,10 +1,10 @@
-package com.uvasoftware.scanii.internal;
+package com.scanii.internal;
 
-import com.uvasoftware.scanii.ScaniiClient;
-import com.uvasoftware.scanii.ScaniiClients;
-import com.uvasoftware.scanii.ScaniiException;
-import com.uvasoftware.scanii.ScaniiTarget;
-import com.uvasoftware.scanii.models.*;
+import com.scanii.ScaniiClient;
+import com.scanii.ScaniiClients;
+import com.scanii.ScaniiException;
+import com.scanii.ScaniiTarget;
+import com.scanii.models.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;

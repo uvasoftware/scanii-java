@@ -1,7 +1,7 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
-import com.uvasoftware.scanii.internal.DefaultScaniiClient;
-import com.uvasoftware.scanii.models.ScaniiAuthToken;
+import com.scanii.internal.DefaultScaniiClient;
+import com.scanii.models.ScaniiAuthToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

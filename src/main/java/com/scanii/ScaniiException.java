@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
 /**
  * Unchecked exception wrapper.

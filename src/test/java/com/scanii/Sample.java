@@ -1,6 +1,6 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
-import com.uvasoftware.scanii.models.ScaniiProcessingResult;
+import com.scanii.models.ScaniiProcessingResult;
 
 import java.nio.file.Path;
 

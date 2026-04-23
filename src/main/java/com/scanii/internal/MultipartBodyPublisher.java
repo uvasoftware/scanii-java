@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii.internal;
+package com.scanii.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

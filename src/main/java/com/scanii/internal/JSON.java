@@ -1,9 +1,9 @@
-package com.uvasoftware.scanii.internal;
+package com.scanii.internal;
 
-import com.uvasoftware.scanii.models.ScaniiAccountInfo;
-import com.uvasoftware.scanii.models.ScaniiAuthToken;
-import com.uvasoftware.scanii.models.ScaniiPendingResult;
-import com.uvasoftware.scanii.models.ScaniiProcessingResult;
+import com.scanii.models.ScaniiAccountInfo;
+import com.scanii.models.ScaniiAuthToken;
+import com.scanii.models.ScaniiPendingResult;
+import com.scanii.models.ScaniiProcessingResult;
 
 import java.time.Instant;
 import java.util.*;

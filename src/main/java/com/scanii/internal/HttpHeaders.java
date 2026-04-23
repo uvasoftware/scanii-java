@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii.internal;
+package com.scanii.internal;
 
 class HttpHeaders {
   public static final String LOCATION = "Location";

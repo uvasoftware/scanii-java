@@ -1,6 +1,6 @@
-package com.uvasoftware.scanii.internal;
+package com.scanii.internal;
 
-import com.uvasoftware.scanii.ScaniiTarget;
+import com.scanii.ScaniiTarget;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

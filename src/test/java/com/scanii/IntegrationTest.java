@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
 import java.time.Duration;
 import java.time.Instant;

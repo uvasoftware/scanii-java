@@ -1,4 +1,4 @@
-package com.uvasoftware.scanii.misc;
+package com.scanii.misc;
 
 import java.util.Base64;
 

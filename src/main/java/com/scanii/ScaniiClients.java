@@ -1,6 +1,6 @@
-package com.uvasoftware.scanii;
+package com.scanii;
 
-import com.uvasoftware.scanii.models.ScaniiAuthToken;
+import com.scanii.models.ScaniiAuthToken;
 
 import java.net.http.HttpClient;
 
