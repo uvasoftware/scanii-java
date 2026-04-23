@@ -2,24 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.uvasoftware</groupId>
+  <groupId>com.scanii</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>7.4.0-SNAPSHOT</version>
+  <version>8.0.0</version>
   <packaging>jar</packaging>
   <description>Scanii.com Java SDK</description>
   <name>scanii-java</name>
-  <url>https://github.com/uvasoftware/scanii-java</url>
+  <url>https://github.com/scanii/scanii-java</url>
 
   <organization>
-    <name>Uva Software</name>
+    <name>Scanii</name>
     <url>https://www.scanii.com</url>
   </organization>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
   </properties>
 
   <licenses>
@@ -29,17 +29,17 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git@github.com:uvasoftware/scanii-java.git</connection>
-    <developerConnection>scm:git:git@github.com:uvasoftware/scanii-java.git</developerConnection>
-    <url>https://github.com/uvasoftware/scanii-java/tree/main</url>
+    <connection>scm:git:git@github.com:scanii/scanii-java.git</connection>
+    <developerConnection>scm:git:git@github.com:scanii/scanii-java.git</developerConnection>
+    <url>https://github.com/scanii/scanii-java/tree/main</url>
   </scm>
 
   <developers>
     <developer>
-      <name>Uva Software engineers</name>
-      <email>ping@uvasoftware.com</email>
-      <organization>Uva Software, LLC</organization>
-      <organizationUrl>https://www.uvasoftware.com</organizationUrl>
+      <name>Scanii engineers</name>
+      <email>hi@scanii.com</email>
+      <organization>Scanii</organization>
+      <organizationUrl>https://www.scanii.com</organizationUrl>
     </developer>
   </developers>
   <build>
@@ -58,7 +58,7 @@
           <failIfWarning>
             true
           </failIfWarning>
-          <excludedGroups>com.uvasoftware</excludedGroups>
+          <excludedGroups>com.scanii</excludedGroups>
           <sortArtifactByName>true</sortArtifactByName>
         </configuration>
       </plugin>
@@ -149,7 +149,7 @@
             <version>3.6.3</version>
             <configuration>
               <failOnError>false</failOnError>
-              <source>11</source>
+              <source>21</source>
               <additionalJOptions>
                 <additionalJOption>-Xdoclint:none</additionalJOption>
               </additionalJOptions>
@@ -195,7 +195,7 @@
         <repository>
           <id>github</id>
           <name>GitHub Packages</name>
-          <url>https://maven.pkg.github.com/uvasoftware/scanii-java</url>
+          <url>https://maven.pkg.github.com/scanii/scanii-java</url>
         </repository>
       </distributionManagement>
       <build>
