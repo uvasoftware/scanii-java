@@ -23,40 +23,51 @@ jobs:
           java-version: ${{ matrix.jdk }}
           distribution: corretto
           cache: maven
-
       - name: Download scanii-cli
         shell: bash
         run: |
-          VERSION=latest
-          OS="${{ runner.os }}"
-          case "$OS" in
-            Linux)   GOOS=linux   ;;
-            macOS)   GOOS=darwin  ;;
-            Windows) GOOS=windows ;;
-          esac
-          ARCH="$(uname -m)"
-          case "$ARCH" in
-            x86_64|amd64) GOARCH=amd64 ;;
-            arm64|aarch64) GOARCH=arm64 ;;
-            *) GOARCH=amd64 ;;
-          esac
-          EXT=""
-          [ "$OS" = "Windows" ] && EXT=".exe"
-          BASE_URL="https://github.com/uvasoftware/scanii-cli/releases/latest/download"
-          BINARY="scanii-cli_${GOOS}_${GOARCH}${EXT}"
-          curl -fsSL "$BASE_URL/$BINARY" -o sc${EXT}
-          chmod +x sc${EXT}
-
-      - name: Start scanii-cli server
-        shell: bash
-        run: |
-          EXT=""
-          [ "${{ runner.os }}" = "Windows" ] && EXT=".exe"
-          ./sc${EXT} server &
-          # wait for the server to be ready
-          for i in $(seq 1 15); do
-            curl -sf http://localhost:4000/ping && break || sleep 1
-          done
+            set -euo pipefail
+            # Resolve latest version
+            VERSION=$(curl -fsSL https://api.github.com/repos/scanii/scanii-cli/releases/latest \
+              | grep '"tag_name":' | sed -E 's/.*"v?([^"]+)".*/\1/')
+            echo "scanii-cli version: $VERSION"
+            
+            # Map runner to GoReleaser's OS/arch naming
+            case "${{ runner.os }}" in
+              Linux)   OS=linux  ; EXT=tar.gz ;;
+              macOS)   OS=darwin ; EXT=tar.gz ;;
+              Windows) OS=windows; EXT=zip    ;;
+            esac
+            case "$(uname -m)" in
+              x86_64|amd64)   ARCH=amd64 ;;
+              arm64|aarch64)  ARCH=arm64 ;;
+              *)              ARCH=amd64 ;;
+            esac
+            
+            ASSET="scanii-cli-${VERSION}-${OS}-${ARCH}.${EXT}"
+            URL="https://github.com/scanii/scanii-cli/releases/download/v${VERSION}/${ASSET}"
+            echo "downloading $URL"
+            curl -fsSL "$URL" -o "$ASSET"
+            
+            # Unpack
+            if [ "$EXT" = "tar.gz" ]; then
+              tar -xzf "$ASSET"
+            else
+              unzip -q "$ASSET"
+            fi
+            
+            # Find the binary (GoReleaser usually puts it at the root of the archive)
+            ls -la
+          - name: Start scanii-cli server
+            shell: bash
+            run: |
+              EXT=""
+              [ "${{ runner.os }}" = "Windows" ] && EXT=".exe"
+              ./sc${EXT} server &
+              # wait for the server to be ready
+              for i in $(seq 1 15); do
+                curl -sf http://localhost:4000/v2.2/ping && break || sleep 1
+              done
 
       - name: mvn verify
         run: mvn -B verify

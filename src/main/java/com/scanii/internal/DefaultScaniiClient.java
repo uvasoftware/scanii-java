@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Thread safe client to the Scanii content processing service.
  * Please note that this client does not throw checked exceptions; all exceptions are wrapped around a ScaniiException that extends RuntimeException
  *
- * @see <a href="https://uvasoftware.github.io/openapi/v22/">spec</a>
+ * @see <a href="https://scanii.github.io/openapi/v22/">spec</a>
  */
 public class DefaultScaniiClient implements ScaniiClient {
   private static final System.Logger LOG = System.getLogger(DefaultScaniiClient.class.getName());
@@ -258,7 +258,7 @@ public class DefaultScaniiClient implements ScaniiClient {
 
     HttpResponse<String> response = send(req);
 
-    if (response.statusCode() != 201) {
+    if (response.statusCode() != 201 && response.statusCode() != 200) {
       parseAndThrowError(response);
     }
 

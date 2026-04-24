@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests against a locally-running scanii-cli mock server.
  *
  * Start the server before running:
- *   docker run -d --name scanii-cli -p 4000:4000 ghcr.io/uvasoftware/scanii-cli:latest server
+ *   docker run -d --name scanii-cli -p 4000:4000 ghcr.io/scanii/scanii-cli:latest server
  *
  * Endpoint: http://localhost:4000  Key: key  Secret: secret
  */

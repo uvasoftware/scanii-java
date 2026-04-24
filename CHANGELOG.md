@@ -12,7 +12,7 @@
 
 - Rebranded to `com.scanii:scanii-java`
 - Java source and target updated to 21
-- Integration tests now run against [scanii-cli](https://github.com/uvasoftware/scanii-cli) — no real credentials required
+- Integration tests now run against [scanii-cli](https://github.com/scanii/scanii-cli) — no real credentials required
 - CI matrix: Java 21 and 25 across Ubuntu, macOS, and Windows
 - JUnit 5.12.2
 

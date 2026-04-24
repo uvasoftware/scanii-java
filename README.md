@@ -50,7 +50,7 @@ System.out.printf("findings: %s%n", result.getFindings());
 Run integration tests against a local mock server — no real credentials needed:
 
 ```bash
-docker run -d --name scanii-cli -p 4000:4000 ghcr.io/uvasoftware/scanii-cli:latest server
+docker run -d --name scanii-cli -p 4000:4000 ghcr.io/scanii/scanii-cli:latest server
 mvn verify
 ```
 
