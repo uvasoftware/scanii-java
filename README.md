@@ -4,11 +4,9 @@ Official Java SDK for the [Scanii](https://www.scanii.com) content processing AP
 
 ## SDK Principles
 
-1. **Light.** SDKs keep a small and narrow list of dependencies so they don't add ops burden to customers. Ideally zero runtime dependencies — stdlib only. Test dependencies are also kept minimal. Build tooling (compilers, bundlers) doesn't count.
-
-2. **Up to date.** SDKs are always current with the latest Scanii API spec. When the API evolves, the SDKs are upgraded promptly rather than carrying stale versions for years.
-
-3. **Integration-only.** The SDK's job is to wrap the Scanii REST API. Higher-level concerns — concurrency, retries, queuing, backoff, circuit breaking, batch processing — are the consumer's responsibility. The SDK doesn't make those decisions for them.
+1. **Light.** Zero runtime dependencies, stdlib only.
+2. **Up to date.** Always current with the latest Scanii API.
+3. **Integration-only.** Wraps the REST API — retries, concurrency, and batching are the caller's responsibility.
 
 ## Install
 
