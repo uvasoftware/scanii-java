@@ -189,53 +189,5 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-      <id>github</id>
-      <distributionManagement>
-        <repository>
-          <id>github</id>
-          <name>GitHub Packages</name>
-          <url>https://maven.pkg.github.com/scanii/scanii-java</url>
-        </repository>
-      </distributionManagement>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.0</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.6.3</version>
-            <configuration>
-              <failOnError>false</failOnError>
-              <source>21</source>
-              <additionalJOptions>
-                <additionalJOption>-Xdoclint:none</additionalJOption>
-              </additionalJOptions>
-            </configuration>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 </project>
