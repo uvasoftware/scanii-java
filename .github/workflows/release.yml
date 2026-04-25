@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release to Maven Central
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java for signing and publishing
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: corretto
+          cache: maven
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_TOKEN
+          gpg-private-key: ${{ secrets.CODESIGN_PGP_KEY }}
+          gpg-passphrase: PASSPHRASE
+
+      - name: Strip snapshot from version
+        run: |
+          mvn -q build-helper:parse-version versions:set \
+            -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} \
+            versions:commit
+
+      - name: Publish to Maven Central
+        run: mvn deploy --batch-mode -DskipTests --activate-profiles central --no-transfer-progress
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_TOKEN_USER }}
+          MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
+          PASSPHRASE: ${{ secrets.CODESIGN_PGP_PASSPHRASE }}
+
+      - name: Create GitHub Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = context.ref.replace('refs/tags/', '');
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: tag,
+              generate_release_notes: true,
+            });
