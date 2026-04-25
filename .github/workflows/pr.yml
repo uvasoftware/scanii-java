@@ -58,16 +58,17 @@ jobs:
             
             # Find the binary (GoReleaser usually puts it at the root of the archive)
             ls -la
-          - name: Start scanii-cli server
-            shell: bash
-            run: |
-              EXT=""
-              [ "${{ runner.os }}" = "Windows" ] && EXT=".exe"
-              ./sc${EXT} server &
-              # wait for the server to be ready
-              for i in $(seq 1 15); do
-                curl -sf http://localhost:4000/v2.2/ping && break || sleep 1
-              done
+
+      - name: Start scanii-cli server
+        shell: bash
+        run: |
+          EXT=""
+          [ "${{ runner.os }}" = "Windows" ] && EXT=".exe"
+          ./sc${EXT} server &
+          # wait for the server to be ready
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:4000/v2.2/ping && break || sleep 1
+          done
 
       - name: mvn verify
         run: mvn -B verify
