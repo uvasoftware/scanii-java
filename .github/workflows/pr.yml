@@ -28,7 +28,8 @@ jobs:
         run: |
             set -euo pipefail
             # Resolve latest version
-            VERSION=$(curl -fsSL https://api.github.com/repos/scanii/scanii-cli/releases/latest \
+            VERSION=$(curl -fsSL -H "Authorization: Bearer ${{ github.token }}" \
+              https://api.github.com/repos/scanii/scanii-cli/releases/latest \
               | grep '"tag_name":' | sed -E 's/.*"v?([^"]+)".*/\1/')
             echo "scanii-cli version: $VERSION"
             
