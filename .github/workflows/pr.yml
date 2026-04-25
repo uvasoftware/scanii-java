@@ -56,8 +56,11 @@ jobs:
               unzip -q "$ASSET"
             fi
             
-            # Find the binary (GoReleaser usually puts it at the root of the archive)
-            ls -la
+            # Binary is inside a subdirectory due to wrap_in_directory: true
+            BINEXT=""
+            [ "$OS" = "windows" ] && BINEXT=".exe"
+            cp "scanii-cli-${VERSION}-${OS}-${ARCH}/sc${BINEXT}" "./sc${BINEXT}"
+            chmod +x ./sc 2>/dev/null || true
 
       - name: Start scanii-cli server
         shell: bash
