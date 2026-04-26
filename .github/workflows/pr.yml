@@ -23,56 +23,7 @@ jobs:
           java-version: ${{ matrix.jdk }}
           distribution: corretto
           cache: maven
-      - name: Download scanii-cli
-        shell: bash
-        run: |
-            set -euo pipefail
-            # Resolve latest version
-            VERSION=$(curl -fsSL -H "Authorization: Bearer ${{ github.token }}" \
-              https://api.github.com/repos/scanii/scanii-cli/releases/latest \
-              | grep '"tag_name":' | sed -E 's/.*"v?([^"]+)".*/\1/')
-            echo "scanii-cli version: $VERSION"
-            
-            # Map runner to GoReleaser's OS/arch naming
-            case "${{ runner.os }}" in
-              Linux)   OS=linux  ; EXT=tar.gz ;;
-              macOS)   OS=darwin ; EXT=tar.gz ;;
-              Windows) OS=windows; EXT=zip    ;;
-            esac
-            case "$(uname -m)" in
-              x86_64|amd64)   ARCH=amd64 ;;
-              arm64|aarch64)  ARCH=arm64 ;;
-              *)              ARCH=amd64 ;;
-            esac
-            
-            ASSET="scanii-cli-${VERSION}-${OS}-${ARCH}.${EXT}"
-            URL="https://github.com/scanii/scanii-cli/releases/download/v${VERSION}/${ASSET}"
-            echo "downloading $URL"
-            curl -fsSL "$URL" -o "$ASSET"
-            
-            # Unpack
-            if [ "$EXT" = "tar.gz" ]; then
-              tar -xzf "$ASSET"
-            else
-              unzip -q "$ASSET"
-            fi
-            
-            # Binary is inside a subdirectory due to wrap_in_directory: true
-            BINEXT=""
-            [ "$OS" = "windows" ] && BINEXT=".exe"
-            cp "scanii-cli-${VERSION}-${OS}-${ARCH}/sc${BINEXT}" "./sc${BINEXT}"
-            chmod +x ./sc 2>/dev/null || true
-
-      - name: Start scanii-cli server
-        shell: bash
-        run: |
-          EXT=""
-          [ "${{ runner.os }}" = "Windows" ] && EXT=".exe"
-          ./sc${EXT} server &
-          # wait for the server to be ready
-          for i in $(seq 1 15); do
-            curl -sf http://localhost:4000/v2.2/ping && break || sleep 1
-          done
-
+      - name: Setup scanii-cli
+        uses: scanii/setup-cli-action@v1
       - name: mvn verify
         run: mvn -B verify
