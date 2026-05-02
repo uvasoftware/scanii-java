@@ -188,6 +188,46 @@ public class DefaultScaniiClient implements ScaniiClient {
   }
 
   @Override
+  public Optional<ScaniiTraceResult> retrieveTrace(String id) {
+    Objects.requireNonNull(id, "resource id cannot be null");
+
+    HttpRequest req = buildGet(target.resolve("/v2.2/files/" + id + "/trace"));
+    HttpResponse<String> response = send(req);
+
+    if (response.statusCode() == 404) {
+      return Optional.empty();
+    }
+
+    if (response.statusCode() != 200) {
+      parseAndThrowError(response);
+    }
+
+    ScaniiTraceResult result = JSON.load(response.body(), ScaniiTraceResult.class);
+    extractRequestMetadata(result, response);
+    result.setRawResponse(response.body());
+
+    return Optional.of(result);
+  }
+
+  @Override
+  public ScaniiProcessingResult processFromUrl(URI location, Map<String, String> metadata) {
+    Objects.requireNonNull(location, "location cannot be null");
+    Objects.requireNonNull(metadata, "metadata cannot be null");
+
+    MultipartBodyPublisher multipart = new MultipartBodyPublisher()
+      .addTextBody("location", location.toString());
+    metadata.forEach((k, v) -> multipart.addTextBody(String.format("metadata[%s]", k), v));
+
+    HttpRequest req = buildPost(target.resolve("/v2.2/files"), multipart);
+    return processResponse(req);
+  }
+
+  @Override
+  public ScaniiProcessingResult processFromUrl(URI location) {
+    return processFromUrl(location, Collections.emptyMap());
+  }
+
+  @Override
   public ScaniiPendingResult fetch(String location) {
     return fetch(location, null, Collections.emptyMap());
   }

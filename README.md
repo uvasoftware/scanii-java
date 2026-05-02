@@ -14,7 +14,7 @@ Official Java SDK for the [Scanii](https://www.scanii.com) content processing AP
 <dependency>
   <groupId>com.scanii</groupId>
   <artifactId>scanii-java</artifactId>
-  <version>8.0.0</version>
+  <version>8.1.0</version>
 </dependency>
 ```
 
@@ -30,6 +30,28 @@ ScaniiClient client = ScaniiClients.createDefault("your-api-key", "your-api-secr
 ScaniiProcessingResult result = client.process(Paths.get("/path/to/file"));
 System.out.printf("findings: %s%n", result.getFindings());
 ```
+
+## API reference
+
+| Method | Description |
+|---|---|
+| `process(Path content)` | Synchronous file scan |
+| `process(InputStream content)` | Synchronous stream scan |
+| `process(Path content, Map<String,String> metadata)` | Scan with metadata |
+| `process(Path content, String callback, Map<String,String> metadata)` | Scan with callback |
+| `processAsync(Path content)` | Async-on-server scan, returns pending result |
+| `processFromUrl(URI location)` | Synchronous remote-URL scan |
+| `processFromUrl(URI location, Map<String,String> metadata)` | Remote-URL scan with metadata |
+| `retrieve(String id)` | Retrieve previous scan result |
+| `retrieveTrace(String id)` | Retrieve ordered processing events for a result (preview) |
+| `fetch(String location)` | Server-side async fetch-and-scan of a remote URL |
+| `ping()` | Health check |
+| `createAuthToken(int timeout, TimeUnit unit)` | Mint short-lived auth token |
+| `retrieveAuthToken(String id)` | Inspect auth token |
+| `deleteAuthToken(String id)` | Revoke auth token |
+| `retrieveAccountInfo()` | Retrieve account information |
+
+See the [API spec](https://scanii.github.io/openapi/v22/) for full details.
 
 ## Regional endpoints
 

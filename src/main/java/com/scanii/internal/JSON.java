@@ -4,6 +4,7 @@ import com.scanii.models.ScaniiAccountInfo;
 import com.scanii.models.ScaniiAuthToken;
 import com.scanii.models.ScaniiPendingResult;
 import com.scanii.models.ScaniiProcessingResult;
+import com.scanii.models.ScaniiTraceResult;
 
 import java.time.Instant;
 import java.util.*;
@@ -18,6 +19,7 @@ class JSON {
     READERS.put(ScaniiProcessingResult.class, JSON::toProcessingResult);
     READERS.put(ScaniiAuthToken.class, JSON::toAuthToken);
     READERS.put(ScaniiAccountInfo.class, JSON::toAccountInfo);
+    READERS.put(ScaniiTraceResult.class, JSON::toTraceResult);
   }
 
   @SuppressWarnings("unchecked")
@@ -52,6 +54,26 @@ class JSON {
     r.setFindings(strList(m, "findings"));
     r.setMetadata(strMap(m, "metadata"));
     r.setError(str(m, "error"));
+    return r;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static ScaniiTraceResult toTraceResult(Map<String, Object> m) {
+    ScaniiTraceResult r = new ScaniiTraceResult();
+    r.setResourceId(str(m, "id"));
+    List<Object> eventsRaw = (List<Object>) m.get("events");
+    if (eventsRaw != null) {
+      List<ScaniiTraceResult.ScaniiTraceEvent> events = new ArrayList<>(eventsRaw.size());
+      for (Object o : eventsRaw) {
+        Map<String, Object> em = (Map<String, Object>) o;
+        ScaniiTraceResult.ScaniiTraceEvent e = new ScaniiTraceResult.ScaniiTraceEvent();
+        e.setMessage(str(em, "message"));
+        String ts = str(em, "timestamp");
+        if (ts != null) e.setTimestamp(Instant.parse(ts));
+        events.add(e);
+      }
+      r.setEvents(events);
+    }
     return r;
   }
 

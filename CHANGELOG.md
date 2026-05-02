@@ -1,5 +1,22 @@
 # Changelog
 
+## [8.1.0] — 2026-05-01
+
+### Added
+
+- `retrieveTrace(String id)` — retrieves an ordered list of processing events for a given result id
+  (`GET /v2.2/files/{id}/trace`). Returns `Optional<ScaniiTraceResult>`, empty on 404.
+  Preview: the trace endpoint may shift before being marked stable.
+- `processFromUrl(URI location)` / `processFromUrl(URI location, Map<String,String> metadata)` —
+  submits a remote URL for synchronous processing (`POST /v2.2/files` with `location` field).
+- `ScaniiTraceResult` model with inner `ScaniiTraceEvent` (timestamp, message).
+
+### Deprecated
+
+- `ScaniiProcessingResult.getError()` / `setError()` — the `error` field in the JSON response is
+  deprecated in the v2.2 spec. Error conditions are signalled via `ScaniiException`. Will be removed
+  in a future major version.
+
 ## [8.0.0] — 2026-04-23
 
 ### Breaking changes

@@ -16,10 +16,22 @@ public class ScaniiProcessingResult extends ScaniiResult {
   private Map<String, String> metadata = new HashMap<>();
   private String error;
 
+  /**
+   * @deprecated The {@code error} field is deprecated as of 8.1.0. Use {@link #getFindings()} to
+   * inspect scan results; error conditions are now signalled via {@link com.scanii.ScaniiException}.
+   * Will be removed in a future major version.
+   */
+  @Deprecated(since = "8.1.0")
   public String getError() {
     return error;
   }
 
+  /**
+   * @deprecated The {@code error} field is deprecated as of 8.1.0. Use {@link #getFindings()} to
+   * inspect scan results; error conditions are now signalled via {@link com.scanii.ScaniiException}.
+   * Will be removed in a future major version.
+   */
+  @Deprecated(since = "8.1.0")
   public void setError(String error) {
     this.error = error;
   }

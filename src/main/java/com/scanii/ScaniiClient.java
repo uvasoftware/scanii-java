@@ -4,8 +4,10 @@ import com.scanii.models.ScaniiAccountInfo;
 import com.scanii.models.ScaniiAuthToken;
 import com.scanii.models.ScaniiPendingResult;
 import com.scanii.models.ScaniiProcessingResult;
+import com.scanii.models.ScaniiTraceResult;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -123,12 +125,46 @@ public interface ScaniiClient {
   ScaniiPendingResult processAsync(InputStream content);
 
   /**
-   * Fetches the results of a previously processed file @see <a href="https://docs.scanii.com/v2.2/resources.html#files">https://docs.scanii.com/v2.2/resources.html#files</a>
+   * Fetches the results of a previously processed file @see <a href="https://scanii.github.io/openapi/v22/">spec</a>
    *
    * @param id id of the content/file to be retrieved
    * @return optional  {@link ScaniiProcessingResult}
    */
   Optional<ScaniiProcessingResult> retrieve(String id);
+
+  /**
+   * Retrieves the processing trace for a previously processed file.
+   * Returns an ordered list of events describing each stage of the processing pipeline.
+   *
+   * <p><strong>Preview:</strong> the trace endpoint is marked preview in the v2.2 spec —
+   * the API surface may shift before it is marked stable.
+   *
+   * @param id id of the previously processed content
+   * @return optional {@link ScaniiTraceResult}, empty if the id is not found
+   * @see <a href="https://scanii.github.io/openapi/v22/">spec</a>
+   */
+  Optional<ScaniiTraceResult> retrieveTrace(String id);
+
+  /**
+   * Submits a remote URL for synchronous processing. The Scanii service fetches the content
+   * at the given URL and scans it, returning the result immediately.
+   *
+   * @param location URI of the remote content to process
+   * @param metadata optional metadata to be attached to this result
+   * @return scanii result {@link ScaniiProcessingResult}
+   * @see <a href="https://scanii.github.io/openapi/v22/">spec</a>
+   */
+  ScaniiProcessingResult processFromUrl(URI location, Map<String, String> metadata);
+
+  /**
+   * Submits a remote URL for synchronous processing. The Scanii service fetches the content
+   * at the given URL and scans it, returning the result immediately.
+   *
+   * @param location URI of the remote content to process
+   * @return scanii result {@link ScaniiProcessingResult}
+   * @see <a href="https://scanii.github.io/openapi/v22/">spec</a>
+   */
+  ScaniiProcessingResult processFromUrl(URI location);
 
   /**
    * Makes a fetch call to scanii @see <a href="https://docs.scanii.com/v2.2/resources.html#files">https://docs.scanii.com/v2.2/resources.html#files</a>

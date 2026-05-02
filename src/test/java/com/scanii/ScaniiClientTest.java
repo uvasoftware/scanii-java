@@ -5,15 +5,18 @@ import com.scanii.misc.Systems;
 import com.scanii.models.ScaniiAuthToken;
 import com.scanii.models.ScaniiPendingResult;
 import com.scanii.models.ScaniiProcessingResult;
+import com.scanii.models.ScaniiTraceResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -176,6 +179,40 @@ class ScaniiClientTest extends IntegrationTest {
     ScaniiAuthToken result = client.createAuthToken(1, TimeUnit.HOURS);
     ScaniiAuthToken result2 = client.retrieveAuthToken(result.getResourceId());
     assertEquals(result.getResourceId(), result2.getResourceId());
+  }
+
+  @Test
+  void testRetrieveTrace() throws Exception {
+    ScaniiProcessingResult processed = client.process(Systems.randomFile(1024));
+    assertNotNull(processed.getResourceId());
+
+    Optional<ScaniiTraceResult> opt = client.retrieveTrace(processed.getResourceId());
+    assertTrue(opt.isPresent());
+    ScaniiTraceResult trace = opt.get();
+    assertEquals(processed.getResourceId(), trace.getResourceId());
+    assertNotNull(trace.getEvents());
+    assertFalse(trace.getEvents().isEmpty());
+    for (ScaniiTraceResult.ScaniiTraceEvent event : trace.getEvents()) {
+      assertNotNull(event.getTimestamp());
+      assertNotNull(event.getMessage());
+    }
+  }
+
+  @Test
+  void testRetrieveTraceUnknownId() {
+    Optional<ScaniiTraceResult> opt = client.retrieveTrace("doesnotexist");
+    assertTrue(opt.isEmpty());
+  }
+
+  @Test
+  void testProcessFromUrl() throws Exception {
+    // scanii-cli serves the EICAR file at this well-known path
+    ScaniiProcessingResult result = client.processFromUrl(URI.create(ENDPOINT + "/static/eicar.txt"));
+    assertNotNull(result.getResourceId());
+    assertNotNull(result.getChecksum());
+    assertNotNull(result.getRequestId());
+    assertNotNull(result.getHostId());
+    assertNotNull(result.getFindings());
   }
 
   /**
