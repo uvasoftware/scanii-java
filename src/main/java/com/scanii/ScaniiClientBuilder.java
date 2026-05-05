@@ -22,6 +22,7 @@ import java.util.Map;
  * }</pre>
  */
 public class ScaniiClientBuilder {
+  @SuppressWarnings("deprecation")
   private ScaniiTarget target = ScaniiTarget.AUTO;
   private String key;
   private String secret;
@@ -35,7 +36,11 @@ public class ScaniiClientBuilder {
   /**
    * Sets the target region.
    *
-   * @param target the target region {@link ScaniiTarget}. Defaults to {@link ScaniiTarget#AUTO}.
+   * <p>Use an explicit regional constant ({@link ScaniiTarget#US1}, {@link ScaniiTarget#EU1},
+   * etc.) for production. If not set, the client defaults to {@link ScaniiTarget#AUTO}, which is
+   * deprecated — a runtime warning will be emitted.</p>
+   *
+   * @param target the target region {@link ScaniiTarget}.
    * @return this builder.
    */
   public ScaniiClientBuilder target(ScaniiTarget target) {
@@ -108,9 +113,16 @@ public class ScaniiClientBuilder {
    * @return the new scanii client.
    * @throws IllegalStateException if credentials have not been set.
    */
+  @SuppressWarnings("deprecation")
   public ScaniiClient build() {
     if (key == null) {
       throw new IllegalStateException("credentials or authToken must be set");
+    }
+    if (target == ScaniiTarget.AUTO) {
+      System.err.println("[scanii] DEPRECATION: No explicit target set; defaulting to ScaniiTarget.AUTO " +
+        "(https://api.scanii.com). This does not guarantee regional data placement. " +
+        "Use ScaniiTarget.US1 (or another regional constant) for explicit data residency control. " +
+        "ScaniiTarget.AUTO will be removed in a future major version.");
     }
     HttpClient client = httpClient != null ? httpClient : HttpClient.newHttpClient();
     return new DefaultScaniiClient(target, key, secret, client, userAgent, Collections.unmodifiableMap(new LinkedHashMap<>(headers)));
