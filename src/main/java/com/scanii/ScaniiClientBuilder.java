@@ -22,6 +22,7 @@ import java.util.Map;
  * }</pre>
  */
 public class ScaniiClientBuilder {
+  @SuppressWarnings("deprecation")
   private ScaniiTarget target = ScaniiTarget.AUTO;
   private String key;
   private String secret;
@@ -35,7 +36,11 @@ public class ScaniiClientBuilder {
   /**
    * Sets the target region.
    *
-   * @param target the target region {@link ScaniiTarget}. Defaults to {@link ScaniiTarget#AUTO}.
+   * <p>Use an explicit regional constant ({@link ScaniiTarget#US1}, {@link ScaniiTarget#EU1},
+   * etc.) for production. If not set, the client defaults to {@link ScaniiTarget#AUTO}, which is
+   * deprecated — a runtime warning will be emitted.</p>
+   *
+   * @param target the target region {@link ScaniiTarget}.
    * @return this builder.
    */
   public ScaniiClientBuilder target(ScaniiTarget target) {

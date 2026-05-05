@@ -4,11 +4,20 @@ import java.net.URI;
 import java.util.List;
 
 /**
- * Scanii Resource targets so you can control which api version and endpoint you would like your client to utilize.
+ * Scanii regional API endpoints.
  *
- * @see <a href="http://docs.scanii.com/v2.1/overview.html#endpoints">http://docs.scanii.com/v2.1/overview.html#endpoints</a>
+ * @see <a href="https://scanii.github.io/openapi/v22/">https://scanii.github.io/openapi/v22/</a>
  */
 public class ScaniiTarget {
+  /**
+   * Latency-routed endpoint ({@code https://api.scanii.com}). Routes to the nearest regional
+   * endpoint automatically, but does not guarantee which region processes your data.
+   *
+   * @deprecated Use an explicit regional target for data residency compliance:
+   *   {@link #US1}, {@link #EU1}, {@link #EU2}, {@link #AP1}, {@link #AP2}, {@link #CA1}.
+   *   Will be removed in a future major version.
+   */
+  @Deprecated(since = "8.2.0")
   public static final ScaniiTarget AUTO = new ScaniiTarget("https://api.scanii.com");
   public static final ScaniiTarget US1 = new ScaniiTarget("https://api-us1.scanii.com");
   public static final ScaniiTarget EU1 = new ScaniiTarget("https://api-eu1.scanii.com");

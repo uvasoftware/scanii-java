@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.http.HttpClient;
 
+@SuppressWarnings("deprecation")
 class ScaniiClientsTest {
 
   @Test

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 class ScaniiTargetTest {
 
   @Test

@@ -52,12 +52,16 @@ public class ScaniiClients {
   }
 
   /**
-   * Creates a default client using an API key/secret pair and routing to the nearest processing endpoint.
+   * Creates a default client using an API key/secret pair, routing to the nearest processing endpoint.
    *
    * @param key    an API key to be used.
    * @param secret an API secret to be used.
    * @return the new scanii client.
+   * @deprecated Routing to the nearest processing endpoint does not give you control over which
+   *   region processes your data. Use {@link #createDefault(ScaniiTarget, String, String)} with an
+   *   explicit regional target instead. Will be removed in a future major version.
    */
+  @Deprecated(since = "8.2.0")
   public static ScaniiClient createDefault(String key, String secret) {
     return builder().credentials(key, secret).build();
   }
