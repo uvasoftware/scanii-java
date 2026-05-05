@@ -23,10 +23,11 @@ Official Java SDK for the [Scanii](https://www.scanii.com) content processing AP
 ```java
 import com.scanii.ScaniiClient;
 import com.scanii.ScaniiClients;
+import com.scanii.ScaniiTarget;
 import com.scanii.models.ScaniiProcessingResult;
 import java.nio.file.Paths;
 
-ScaniiClient client = ScaniiClients.createDefault("your-api-key", "your-api-secret");
+ScaniiClient client = ScaniiClients.createDefault(ScaniiTarget.US1, "your-api-key", "your-api-secret");
 ScaniiProcessingResult result = client.process(Paths.get("/path/to/file"));
 System.out.printf("findings: %s%n", result.getFindings());
 ```
@@ -57,13 +58,13 @@ See the [API spec](https://scanii.github.io/openapi/v22/) for full details.
 
 | Constant | Endpoint |
 |---|---|
-| `ScaniiTarget.AUTO` | `https://api.scanii.com` |
 | `ScaniiTarget.US1` | `https://api-us1.scanii.com` |
 | `ScaniiTarget.EU1` | `https://api-eu1.scanii.com` |
 | `ScaniiTarget.EU2` | `https://api-eu2.scanii.com` |
 | `ScaniiTarget.AP1` | `https://api-ap1.scanii.com` |
 | `ScaniiTarget.AP2` | `https://api-ap2.scanii.com` |
 | `ScaniiTarget.CA1` | `https://api-ca1.scanii.com` |
+| ~~`ScaniiTarget.AUTO`~~ | ~~`https://api.scanii.com`~~ — **deprecated**, does not guarantee regional data placement |
 
 ## Local development with scanii-cli
 
