@@ -113,16 +113,9 @@ public class ScaniiClientBuilder {
    * @return the new scanii client.
    * @throws IllegalStateException if credentials have not been set.
    */
-  @SuppressWarnings("deprecation")
   public ScaniiClient build() {
     if (key == null) {
       throw new IllegalStateException("credentials or authToken must be set");
-    }
-    if (target == ScaniiTarget.AUTO) {
-      System.err.println("[scanii] DEPRECATION: No explicit target set; defaulting to ScaniiTarget.AUTO " +
-        "(https://api.scanii.com). This does not guarantee regional data placement. " +
-        "Use ScaniiTarget.US1 (or another regional constant) for explicit data residency control. " +
-        "ScaniiTarget.AUTO will be removed in a future major version.");
     }
     HttpClient client = httpClient != null ? httpClient : HttpClient.newHttpClient();
     return new DefaultScaniiClient(target, key, secret, client, userAgent, Collections.unmodifiableMap(new LinkedHashMap<>(headers)));

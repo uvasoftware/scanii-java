@@ -10,8 +10,6 @@
 - `ScaniiClients.createDefault(String key, String secret)` — defaults to `ScaniiTarget.AUTO`.
   Use `createDefault(ScaniiTarget, String, String)` with an explicit target instead.
   Will be removed in a future major version.
-- Constructing a client via the builder without calling `.target(...)` now logs a deprecation
-  warning to `System.err` at runtime.
 
 ## [8.1.0] — 2026-05-01
 
